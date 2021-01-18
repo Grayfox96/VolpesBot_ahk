@@ -169,7 +169,7 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 						this.SendPRIVMSG(Channel, CustomCommandOutput)
 						}
 					Else if (Command = "Hi" or Command = "Bot") { ; Send a chat message saying "Hello Nick!" in the channel that the command was triggered in
-						this.SendPRIVMSG(Channel, "👋 " MoodEmoteGood " hi " DisplayName "! I'm a bot.")
+						this.SendPRIVMSG(Channel, "👋 " MoodEmoteGood " hi " DisplayName "! I'm a bot. You can find a copy of me here https://grayfox96.github.io/VolpesBot/")
 						}
 					Else if (Command = "Slap") { ; Send a "/me slaps Parameter" to the channel the command was triggered in
 						this.SendACTION(Channel, "slaps " Param)
@@ -283,8 +283,8 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 						Else if (Command = "Shutdown" or Command = "Off") { ; Shuts down the bot
 							ShutdownBot("FeelsDankMan 👍 Bot offline")
 							}
-						Else if (Command = "ToggleSource") { ; Toggles a source in OBS
-							ToggleSource(Param)
+						Else if (Command = "ToggleSceneOrSource") { ; Toggles a source in OBS
+							ToggleSceneOrSource(Param)
 							this.SendPRIVMSG(Channel, MoodEmoteGood " 👍 done")
 							}
 						Else if (Command = "Showemote") { ; Downloads an emote file and shows it in OBS
@@ -338,7 +338,7 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 							this.SendPRIVMSG(Channel, MoodEmoteGood " These are the tags of your message: " Tags)
 							}
 						Else if (Command = "Newcommand") { ; Creates a custom command
-							NewCommandNeedleRegEx := "^" . CommandTrigger[Channel] . "(?:[newcommandNEWCOMMAND]{10}) (?P<Name>[^ !\$#]*) (?P<Parameter>.*)$"
+							NewCommandNeedleRegEx := "^" . CommandTrigger[Channel] . "i)(?:[newcomad]{10}) (?P<Name>[^ !\$#]*) (?P<Parameter>.*)$"
 							If (RegExMatch(Msg, NewCommandNeedleRegEx, RegExCommand)) {
 								NewCommandNeedleRegEx := "i)" . RegExCommandName . "[,|.]"
 								IniRead, CustomCommandOutput, Files\CustomCommands.ini, %Channel%, % "customcommand" . RegExCommandName, %A_Space%
@@ -358,7 +358,7 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 								}
 							}
 						Else if (Command = "Deletecommand") { ; Deletes a custom command
-							DeleteCommandNeedleRegEx := "^" . CommandTrigger[Channel] . "(?:[deletecommandDELETECOMMAND]{13}) (?P<Name>[^ !\$#]*)"
+							DeleteCommandNeedleRegEx := "^" . CommandTrigger[Channel] . "i)(?:[deltcoman]{13}) (?P<Name>[^ !\$#]*)"
 							If (RegExMatch(Msg, DeleteCommandNeedleRegEx, RegExCommand)) {
 								NewCommandNeedleRegEx := "i)" . RegExCommandName . "[,|.]"
 								If !(RegExMatch(ListsOfCommands[Channel, "list"], NewCommandNeedleRegEx) or RegExMatch(ListsOfModCommands[Channel, "list"], NewCommandNeedleRegEx)) {
@@ -397,7 +397,7 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 	onWHISPER(Tags,Nick,User,Host,Cmd,Params,Msg,Data) {
 		BlackListNeedleRegEx := "i)^(" . BlackList["global"] . ")$"
 		If (RegExMatch(Msg, CommandTriggerNeedleRegEx, Match) and !RegExMatch(User, BlackListNeedleRegEx)) {
-			this.SendPRIVMSG("#volpesbot", "it worked")
+			this.SendPRIVMSG("#" SettingsNicks, "it worked")
 			}
 		If (Nick = SettingsBotOwner){
 			CommandTriggerNeedleRegEx := "^\s*#(\S+)(?:\s+(.+?))?\s*$"
@@ -414,7 +414,7 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 			}
 		}
 	onNOTICE(Tags,Nick,User,Host,Cmd,Params,Msg,Data){
-;		this.SendPRIVMSG("#volpesbot", Tags "|" Nick "|" Cmd "|" Params[1] "|" Msg "|" Data)
+;		this.SendPRIVMSG("#" SettingsNicks, Tags "|" Nick "|" Cmd "|" Params[1] "|" Msg "|" Data)
 		}
 	Log(Data) { ; This function gets called for every raw line from the server 
 		Print(Data) ; Print the raw data received from the server
@@ -437,10 +437,10 @@ Print(Params*) {
 		}
 	}
 
-ToggleSource(SourceName) {
-	StringLower, SourceName, SourceName
-	SourceName := """" . SourceName . """"
-	Run, OBSCommand.exe /password=%SettingsOBSCommandPass% /togglesource=%SourceName%, %SettingsOBSCommandPath%, Hide,  ; hardcoded value
+ToggleSceneOrSource(SceneOrSourceName) {
+	StringLower, SceneOrSourceName, SceneOrSourceName
+	SceneOrSourceName := """" . SceneOrSourceName . """"
+	Run, OBSCommand.exe /password=%SettingsOBSCommandPass% /togglesource=%SceneOrSourceName%, %SettingsOBSCommandPath%, Hide,  ; hardcoded value
 	}
 
 RetrieveSpotifyWindowID() { ; Spotify has multiple windows open but the only one with a title is the one you actually want to pull the title from,
@@ -650,7 +650,7 @@ SaveCurrentSong() {
 		PreviousSongArtistAndTitleFromSpotify := SongArtistAndTitleFromSpotify
 	If (SendDataVar2)
 		SongArtistAndTitleFromSpotify := SendDataVar2
-;	MyBot.SendPRIVMSG("#volpesbot", SendDataVar1 SendDataVar2 SendDataVar3 SendDataVar4 SendDataVar5)
+;	MyBot.SendPRIVMSG("#" SettingsNicks, SendDataVar1 SendDataVar2 SendDataVar3 SendDataVar4 SendDataVar5)
 	}
 
 ShowLastCommandSent(MessageText := "") {

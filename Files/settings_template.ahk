@@ -70,9 +70,9 @@ global AutomaticMessage						:=	{"#channel1": ["FeelsDankMan Join for deep art a
 global MiscTriggers							:=	{"NeedleRegEx":	["trigger number one",	"test123"]	; associative array: the 3 keys are a regex needle array, a nick array and a response array, the bot answers to the specific sender sending the specific message with a specific answer
 												, "Nick":		["usernumberone",		"streamelements"]
 												,"Response":	["hello usernumberone",	"stop testing streamelements"}
-global BlackList							:=	{"global": "supibot|streamelements"	;array of strings with "global" and channel names as the keys and a string of blacklisted usernames as the values
-												, "#channel1": "badguysname|annoyingdude"
-												, "#channel2": "anotherannoyingdude|thatguyyoudontlike"}
+global BlackList							:=	{"global": "a_bot|some_other_user"	;array of strings with "global" and channel names as the keys and a string of blacklisted usernames as the values
+												, "#channel1": "bad_guys_name|annoying_dude"
+												, "#channel2": "another_annoying_dude|that_guy_you_dont_like"}
 global EmotesArray := []
 Loop, Files, %EmoteDirSlash%
 	EmotesArray.push(A_LoopFileName)
