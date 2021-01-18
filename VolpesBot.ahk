@@ -656,8 +656,3 @@ ShowLastCommandSent(MessageText := "") {
 		SetTimer , HideLastCommandSent, 5000
 		}
 	}
-
-/* 
-				NOTES																																										;
-creare una funzione per reminder
-do something with this https://tmi.twitch.tv/group/user/grayfox1996/chatters
