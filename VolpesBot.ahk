@@ -9,7 +9,7 @@ CoordMode, ToolTip , Screen
 Menu, Tray, Icon , Files\Twitch.ico ; hardcoded value
 #Include Files\Socket.ahk ; Include the Socket library ; hardcoded value
 #Include Files\MyRC.ahk ; Include the IRC library ; hardcoded value
-#Include Files\SendData.ahk
+#Include Files\SendData.ahk ; hardcoded value
 Run, SpotifySongTimer.ahk, %A_WorkingDir%\Files\, , SpotifySongTimerPID
 SendData(True, False) ;Autorun. False means look for a label name in the first comma separated value
 global SongArtistAndTitleFromSpotify := ""
@@ -25,18 +25,21 @@ global A_InvisibleCharacter := " 󠀀 "
 global WorkingDirSlash := A_WorkingDir . "\"
 global EmoteDirSlash := WorkingDirSlash . "Emotes\"
 If !(InStr(FileExist(EmoteDirSlash), "D") ) {
-	MsgBox, % "Emotes directory missing"
-	ExitApp
-	}
-global PokemonGifsDir := "C:\Users\Claudio\Downloads\Altro\Pokemon gifs\"
-If !(InStr(FileExist(PokemonGifsDir), "D") ) {
-	MsgBox, % "Pokemon gifs directory missing"
+	MsgBox, % "Emotes directory missing, you can download emotes there using the ""showemote"" command" ; hardcoded value
 	ExitApp
 	}
 global Paused := 0
+If !(FileExist("Files\Settings.ahk")) {
+	MsgBox, % "edit the ""settings_template.ahk"" file in the ""Files"" directory and rename it ""Settings.ahk"", bot might break if you dont fill out all the fields" ; hardcoded value
+	ExitApp
+	}
 #Include Files\Settings.ahk
-;If !(SettingsTrayIcon)
-;	#NoTrayIcon
+If !(SettingsTrayIcon)
+	#NoTrayIcon
+If !(InStr(FileExist(PokemonGifsDir), "D") ) {
+	MsgBox, % "Pokemon gifs directory missing" ; hardcoded value
+	ExitApp
+	}
 If (SettingsShowGui)
 	#Include Files\TwitchBotGUI.ahk ; Include the IRC library ; hardcoded value
 MyBot := new IRCBot() ; Create a new instance of your bot

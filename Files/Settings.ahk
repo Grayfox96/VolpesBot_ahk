@@ -83,6 +83,7 @@ global NumberOfMessagesMIN					:=	{"#grayfox1996": "20"
 												, "#shaqd_": "50"
 												,"#sirmunchkin": "50"
 												, "#lithiumtim": "50"}
+global AnnouncementFunctionTimer := 600000														; Time in milliseconds
 global AutomaticMessage						:=	{"#grayfox1996": ["FeelsDankMan Join for deep art and speedrunning discussion https://discord.gg/yRvU3YQ"]
 												, "#volpesbot": ["FeelsDankMan at least 2 messages were sent since the last announcement and this is announcement n1"
 																, "FeelsDankMan at least 2 messages were sent since the last announcement and this is announcement n2"
@@ -107,8 +108,8 @@ global MessagesSinceLastAutomatedMessage := []
 global AutomatedMessageNumber := []																
 global IsMessageEven := []																		
 global LastTriggeredMessageTime := []															
+global PokemonGifsDir := "C:\some\foldr\with\some\Pokemon gifs\"								
 global PokemonGifsArray := []																	
 Loop, Files, %PokemonGifsDir%*																	
 	PokemonGifsArray.push(A_LoopFileName)														
 global NumberOfPokemonGifs := PokemonGifsArray.Length()											
-global AnnouncementFunctionTimer := 600000														; Time in milliseconds
