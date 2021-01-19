@@ -281,7 +281,7 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 							this.SendPRIVMSG(Channel, "/timeout " Param)
 							}
 						Else if (Command = "Shutdown" or Command = "Off") { ; Shuts down the bot
-							ShutdownBot("FeelsDankMan 👍 Bot offline")
+							ShutdownBot("")
 							}
 						Else if (Command = "ToggleSceneOrSource") { ; Toggles a source in OBS
 							ToggleSceneOrSource(Param)
@@ -378,10 +378,8 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 ;				WHISPER COMMANDS																																										;
 	onWHISPER(Tags,Nick,User,Host,Cmd,Params,Msg,Data) {
 		BlackListNeedleRegEx := "i)^(" . BlackList["global"] . ")$"
-		If (RegExMatch(Msg, CommandTriggerNeedleRegEx, Match) and !RegExMatch(User, BlackListNeedleRegEx)) {
-			this.SendPRIVMSG("#" SettingsNicks, "it worked")
-			}
-		If (Nick = SettingsBotOwner){
+		WhisperWhiteListNeedleRegEx := "i)^(" . WhisperWhitelist . ")$"
+		If ((Nick = SettingsBotOwner or RegExMatch(Nick, WhisperWhiteListNeedleRegEx)) and !RegExMatch(User, BlackListNeedleRegEx)) {
 			CommandTriggerNeedleRegEx := "^\s*#(\S+)(?:\s+(.+?))?\s*$"
 			If RegExMatch(Msg, CommandTriggerNeedleRegEx, Match) {
 				Command := Match1 ; Command is the first capturing subpattern in the RegEx
@@ -391,6 +389,9 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 					}
 				Else if (Command = "UnpauseBot") {
 					PauseBot(0)
+					}
+				Else if (Command = "Shutdown" or Command = "Off") { ; Shuts down the bot
+					ShutdownBot("")
 					}
 				}
 			}

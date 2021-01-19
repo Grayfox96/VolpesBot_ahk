@@ -50,6 +50,7 @@ global ListsOfModCommands := []
 ListsOfModCommands["list"]					:=	["unpausebot", "pausebot", "pyramid", "timeout", "shutdown", "off", "togglesource", "showemote", "obssetup", "sendmessage", "hachudeer", "gettags", "newcommand", "deletecommand", "reload"]	; array of all mod commands
 ListsOfModCommands["#channel1", "list"]	:=	"unpausebot, pausebot, pyramid, timeout, shutdown, off, togglesource, showemote, obssetup, sendmessage, hachudeer, gettags, newcommand, deletecommand, reload."									; a string of all mod commands you want active in a particular channel
 ListsOfModCommands["#channel2", "list"]	:=	"unpausebot, pausebot, pyramid, timeout, shutdown, off, togglesource, showemote, obssetup, sendmessage, hachudeer, gettags, newcommand, deletecommand, reload."									; a string of all mod commands you want active in a particular channel
+global WhisperWhitelist						:=	"trusted_user1|anoter_trusted_user"
 global CommandTrigger						:=	{"#channel1": "#"	;	prefix to trigger the bot by channel
 												, "#channel2": "#"}
 global EmotesTriggers						:=	{"#channel1": "ayayaJAM|Anone|AYAYA|FeelsStrongMan GuitarTime|D:"	; string of phrases and emotes the bot copies when they are sent in a channel

@@ -100,7 +100,6 @@ UISendMessageEditFunction() {
 
 UIRestartButtonFunction() {
 	global MyBot
-	MyBot.SendPRIVMSG("#volpesbot", "MrDestructoid 👍 reloading the script ")
 	DetectHiddenWindows, On
 	SetTitleMatchMode, 2
 	WinKill, SpotifySongTimer.ahk ahk_pid %SpotifySongTimerPID%
