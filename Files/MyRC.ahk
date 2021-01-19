@@ -268,7 +268,7 @@
 	
 	_SendRaw(Message, RecvPrefix="", Prefix="", Suffix="", Encoding="UTF-8")
 		{
-			Max := 510  - this._ByteCount(RecvPrefix, Encoding) - this._ByteCount(Suffix, Encoding)
+			Max := 1530  - this._ByteCount(RecvPrefix, Encoding) - this._ByteCount(Suffix, Encoding)
 			Out := []
 			Loop, Parse, Message, `r`n, `r`n
 			{
@@ -284,7 +284,7 @@
 	
 	_SendTCP(Message, Encoding="UTF-8")
 		{
-			Messages := this._ByteSplit(Message, 512)
+			Messages := this._ByteSplit(Message, 1532)
 			if Messages.MaxIndex() > 1
 			{
 				this.Log(Message)
