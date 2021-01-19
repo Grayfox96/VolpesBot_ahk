@@ -316,24 +316,6 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 						Else if (Command = "Hachudeer") { ; widepeepoHappy
 							this.SendPRIVMSG(Channel, MoodEmoteHappy " ⣿⣿⣿⣿⣿⣿⣿⢿⣿⠏⠉⢹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠻⣿⣿⣿⣿ ⣿⣿⣿⣿⣿⣿⠄⠄⠈⠄⠄⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠄⠄⣿⣿⣿⣿ ⣿⣿⣿⣿⣿⣿⣿⣦⠄⠄⠄⠿⠿⠛⠛⠛⠛⠿⠿⣿⣿⣿⣿⡟⠄⠄⠘⠛⢻⣿ ⣿⣿⣿⣿⣿⣿⣿⡿⠃⣀⣤⣴⣶⣶⣶⣶⣶⣦⣤⣀⠉⠛⠋⠄⠄⢀⣤⣤⣾⣿ ⣿⣿⠿⠛⠋⠉⢀⣴⡏⠄⢀⠿⠟⠛⠛⠿⢿⣿⡟⠛⠛⣦⡀⠄⢰⣿⣿⣿⣿⣿ ⣿⡇⠄⢶⠟⠠⠿⠛⠛⠉⠁⠄⠸⠿⠗⠄⠄⠙⠳⢤⣤⣿⣿⡄⠄⠙⢿⣿⣿⣿ ⣿⣧⡀⠄⠄⠄⢀⣠⣴⣶⠆⣀⣀⠄⠄⢀⣀⠠⣄⠄⠙⢿⣿⣿⠄⠄⠄⠈⠻⣿ ⣿⣿⣿⡇⣠⣾⠿⢛⣉⣴⣾⣿⣿⣿⣿⣿⣿⣷⣌⢿⣦⡀⠙⠁⠄⠄⠄⠄⠄⣿ ⣿⣿⡟⡰⠋⠄⣾⡇⠄⣻⣿⣿⣿⣿⣿⠏⠉⣿⣿⡌⣿⣿⡀⠄⠄⠄⢀⣀⣼⣿ ⣿⣿⢡⠃⠠⢠⣿⣿⣾⣿⣿⣿⣿⣿⣿⣷⣴⣿⣿⣷⢈⣭⡅⠄⠄⣸⣿⣿⣿⣿ ⣿⣿⡈⣆⠄⣾⣿⣿⣿⣷⣝⣛⣫⣾⣿⣿⣿⣿⣿⣿⣿⣿⠇⠄⠄⣿⣿⣿⣿⣿ ⣿⣿⣧⠹⣧⠈⢿⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠁⢀⣴⡄⢿⣿⣿⣿⣿ ⣿⣿⣿⡇⣿⡇⠄⠄⠄⠉⠻⠛⠟⠋⠉⠄⠄⠙⠋⠁⠄⢠⣿⣿⡇⢸⣿⣿⣿⣿ ⣿⡿⢋⣴⡿⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠸⣿⡿⠃⢸⣿⣿⣿⣿ ⣿⣷⣿⣿⣾⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣾⣶⣶⣿⣿⣿⣿⣿ ") ; hardcoded value
 							}
-						Else if (Command = "Hachudeer2") { ; widepeepoHappy
-							this.SendPRIVMSG(Channel, MoodEmoteHappy)
-							this.SendPRIVMSG(Channel, "⣿⣿⣿⣿⣿⣿⣿⢿⣿⠏⠉⢹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠻⣿⣿⣿⣿") ; hardcoded value
-							this.SendPRIVMSG(Channel, "⣿⣿⣿⣿⣿⣿⠄⠄⠈⠄⠄⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠄⠄⣿⣿⣿⣿") ; hardcoded value
-							this.SendPRIVMSG(Channel, "⣿⣿⣿⣿⣿⣿⣿⣦⠄⠄⠄⠿⠿⠛⠛⠛⠛⠿⠿⣿⣿⣿⣿⡟⠄⠄⠘⠛⢻⣿") ; hardcoded value
-							this.SendPRIVMSG(Channel, "⣿⣿⣿⣿⣿⣿⣿⡿⠃⣀⣤⣴⣶⣶⣶⣶⣶⣦⣤⣀⠉⠛⠋⠄⠄⢀⣤⣤⣾⣿") ; hardcoded value
-							this.SendPRIVMSG(Channel, "⣿⣿⠿⠛⠋⠉⢀⣴⡏⠄⢀⠿⠟⠛⠛⠿⢿⣿⡟⠛⠛⣦⡀⠄⢰⣿⣿⣿⣿⣿") ; hardcoded value
-							this.SendPRIVMSG(Channel, "⣿⡇⠄⢶⠟⠠⠿⠛⠛⠉⠁⠄⠸⠿⠗⠄⠄⠙⠳⢤⣤⣿⣿⡄⠄⠙⢿⣿⣿⣿") ; hardcoded value
-							this.SendPRIVMSG(Channel, "⣿⣧⡀⠄⠄⠄⢀⣠⣴⣶⠆⣀⣀⠄⠄⢀⣀⠠⣄⠄⠙⢿⣿⣿⠄⠄⠄⠈⠻⣿") ; hardcoded value
-							this.SendPRIVMSG(Channel, "⣿⣿⣿⡇⣠⣾⠿⢛⣉⣴⣾⣿⣿⣿⣿⣿⣿⣷⣌⢿⣦⡀⠙⠁⠄⠄⠄⠄⠄⣿") ; hardcoded value
-							this.SendPRIVMSG(Channel, "⣿⣿⡟⡰⠋⠄⣾⡇⠄⣻⣿⣿⣿⣿⣿⠏⠉⣿⣿⡌⣿⣿⡀⠄⠄⠄⢀⣀⣼⣿") ; hardcoded value
-							this.SendPRIVMSG(Channel, "⣿⣿⢡⠃⠠⢠⣿⣿⣾⣿⣿⣿⣿⣿⣿⣷⣴⣿⣿⣷⢈⣭⡅⠄⠄⣸⣿⣿⣿⣿") ; hardcoded value
-							this.SendPRIVMSG(Channel, "⣿⣿⡈⣆⠄⣾⣿⣿⣿⣷⣝⣛⣫⣾⣿⣿⣿⣿⣿⣿⣿⣿⠇⠄⠄⣿⣿⣿⣿⣿") ; hardcoded value
-							this.SendPRIVMSG(Channel, "⣿⣿⣧⠹⣧⠈⢿⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠁⢀⣴⡄⢿⣿⣿⣿⣿") ; hardcoded value
-							this.SendPRIVMSG(Channel, "⣿⣿⣿⡇⣿⡇⠄⠄⠄⠉⠻⠛⠟⠋⠉⠄⠄⠙⠋⠁⠄⢠⣿⣿⡇⢸⣿⣿⣿⣿") ; hardcoded value
-							this.SendPRIVMSG(Channel, "⣿⡿⢋⣴⡿⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠸⣿⡿⠃⢸⣿⣿⣿⣿") ; hardcoded value
-							this.SendPRIVMSG(Channel, "⣿⣷⣿⣿⣾⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣾⣶⣶⣿⣿⣿⣿⣿") ; hardcoded value
-							}
 						Else if (Command = "Gettags") { ; Sends out the tags of the message
 							this.SendPRIVMSG(Channel, MoodEmoteGood " These are the tags of your message: " Tags)
 							}

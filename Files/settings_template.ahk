@@ -42,15 +42,14 @@ ListsOfCommands["help"]						:=	{"hi": " i say hi back to you... Usage: hi"					
 												, "obssetup": " open a obs setup file https://obsproject.com/forum/resources/nuttys-official-obs-commander-noobs-cmdr.1178/ ... usage: obssetup {setup name}"
 												, "sendmessage": " i copy your message and send it... usage: sendmessage {body of the message}"
 												, "hachudeer": " . o O ( PepeHands )"
-												, "hachudeer2": " . o O ( PepeHands )"
 												, "gettags": " i send the irc tags of your message... usage: gettags"
 												, "newcommand": " creates a new command, it doesnt support variables for now... usage: !newcommand {name of the command} {response to the command}"
 												, "deletecommand": " deletes a custom command"
 												, "reload": " reloads the bot"}
 global ListsOfModCommands := []
-ListsOfModCommands["list"]					:=	["unpausebot", "pausebot", "pyramid", "timeout", "shutdown", "off", "togglesource", "showemote", "obssetup", "sendmessage", "hachudeer", "hachudeer2", "gettags", "newcommand", "deletecommand", "reload"]	; array of all mod commands
-ListsOfModCommands["#channel1", "list"]	:=	"unpausebot, pausebot, pyramid, timeout, shutdown, off, togglesource, showemote, obssetup, sendmessage, hachudeer, hachudeer2, gettags, newcommand, deletecommand, reload."									; a string of all mod commands you want active in a particular channel
-ListsOfModCommands["#channel2", "list"]	:=	"unpausebot, pausebot, pyramid, timeout, shutdown, off, togglesource, showemote, obssetup, sendmessage, hachudeer, hachudeer2, gettags, newcommand, deletecommand, reload."									; a string of all mod commands you want active in a particular channel
+ListsOfModCommands["list"]					:=	["unpausebot", "pausebot", "pyramid", "timeout", "shutdown", "off", "togglesource", "showemote", "obssetup", "sendmessage", "hachudeer", "gettags", "newcommand", "deletecommand", "reload"]	; array of all mod commands
+ListsOfModCommands["#channel1", "list"]	:=	"unpausebot, pausebot, pyramid, timeout, shutdown, off, togglesource, showemote, obssetup, sendmessage, hachudeer, gettags, newcommand, deletecommand, reload."									; a string of all mod commands you want active in a particular channel
+ListsOfModCommands["#channel2", "list"]	:=	"unpausebot, pausebot, pyramid, timeout, shutdown, off, togglesource, showemote, obssetup, sendmessage, hachudeer, gettags, newcommand, deletecommand, reload."									; a string of all mod commands you want active in a particular channel
 global CommandTrigger						:=	{"#channel1": "#"	;	prefix to trigger the bot by channel
 												, "#channel2": "#"}
 global EmotesTriggers						:=	{"#channel1": "ayayaJAM|Anone|AYAYA|FeelsStrongMan GuitarTime|D:"	; string of phrases and emotes the bot copies when they are sent in a channel
