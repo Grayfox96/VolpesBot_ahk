@@ -1,8 +1,8 @@
-﻿#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
-;#Warn  ; Enable warnings to assist with detecting common errors.
+﻿#NoEnv ; Recommended for performance and compatibility with future AutoHotkey releases.
+; #Warn ; Enable warnings to assist with detecting common errors.
 #KeyHistory 0
-SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
-SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
+SendMode Input ; Recommended for new scripts due to its superior speed and reliability.
+SetWorkingDir %A_ScriptDir% ; Ensures a consistent starting directory.
 #SingleInstance Force
 #Persistent
 CoordMode, ToolTip , Screen
@@ -45,13 +45,13 @@ If (SettingsShowGui)
 MyBot := new IRCBot() ; Create a new instance of your bot
 MyBot.Connect(SettingsAddress, SettingsPort, SettingsNicks, SettingsUser, SettingsName, SettingsPass) ; Connect to an IRC server
 MyBot.SendJOIN(SettingsChannelsVariable) ; Join the channels
-;Sleep, 2000
-;SendMessageToEveryChannel("FeelsDankMan 👍 Bot Online")
+; Sleep, 2000
+; SendMessageToEveryChannel("FeelsDankMan 👍 Bot Online")
 SetTimer, AnnouncementFunction, %AnnouncementFunctionTimer%
 Return
-;																																																			;
-;				HOTKEYS																																													;
-;																																																			;
+;										
+;				HOTKEYS					
+;										
 SpotifySongChanged:
 	SaveCurrentSong()
 Return
@@ -66,7 +66,7 @@ randompokemongif:
 	pokemongif := % PokemonGifsArray[number]
 	PokemonGifsDirForward := StrReplace(PokemonGifsDir, "\" , "/")
 	json := """SetSourceSettings={'sourceName': 'pokemongif', 'sourceSettings': {'local_file': '" PokemonGifsDirForward . pokemongif . "'}}""" ; hardcoded value
-	Run, OBSCommand.exe /password=%SettingsOBSCommandPass% /sendjson=%json%, %SettingsOBSCommandPath%, Hide,  ; hardcoded value
+	Run, OBSCommand.exe /password=%SettingsOBSCommandPass% /sendjson=%json%, %SettingsOBSCommandPath%, Hide, ; hardcoded value
 Return
 GuiClose:
 	DetectHiddenWindows, On
@@ -80,9 +80,9 @@ HideLastCommandSent:
 		SetTimer,, Off
 		}
 Return
-;																																																			;
-;				BOT CLASS																																												;
-;																																																			;
+;										
+;				BOT CLASS				
+;										
 class IRCBot extends IRC { ; Create a bot that extends the IRC library
 	onPRIVMSG(Tags,Nick,User,Host,Cmd,Params,Msg,Data) { ; This function gets called on every PRIVMSG (IRC protocol name for incoming chat message)
 		Channel := Params[1] ; In a PRIVMSG, the channel the message came from is stored as the first parameter. This line sets the variable "Channel" to the channel the message came from.
@@ -95,7 +95,7 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 		If RegExMatch(Msg, BannedPhrasesNeedleRegEx) {
 			this.SendPRIVMSG(Channel, "/delete " TagsArray["id"])
 			}
-;				REWARDS REDEEMS																																										;
+				; REWARDS REDEEMS
 		If (TagsArray["custom-reward-id"]) { ; Redeems points rewards
 			If (TagsArray["custom-reward-id"] = "ec6e4fe7-10aa-4edf-af39-feed316d9f81") { ; hardcoded value
 				this.SendPRIVMSG(Channel, "ClappyJam yay " DisplayName " redeemed Test1 with message: " Msg) ; hardcoded value
@@ -113,14 +113,14 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 				this.SendPRIVMSG(Channel, "/unvip " TimeoutRewardSplit[1])
 				}
 			}
-;				TRIGGERS																																													;
+				; TRIGGERS
 		PingedNeedleRegEx := "i)(?:^|\h|\R|\v)(@" SettingsUser ")(?:$|\h|\R|\v)"
 		If RegExMatch(Msg, PingedNeedleRegEx) {
 			this.SendPRIVMSG(Channel, "👋 " MoodEmotes[Channel, "good"] " hi " DisplayName "! I'm a bot.") ; hardcoded value
 			}
 		TimeDifference := TagsArray["tmi-sent-ts"] - LastTriggeredMessageTime[Channel] - 30000
 		EmotesTriggersNeedleRegEx := "(?:^|\h|\R|\v)(" . EmotesTriggers[Channel] . ")(?:$|\h|\R|\v)"
-		If ((!(TimeDifference > 0) or (LastTriggeredMessageTime[Channel])) and (RegExMatch(Msg, EmotesTriggersNeedleRegEx, Emote))) { ; Sends an emote if its in the list ; hardcoded value
+		If (((TimeDifference > 0) or !(LastTriggeredMessageTime[Channel])) and (RegExMatch(Msg, EmotesTriggersNeedleRegEx, Emote))) { ; Sends an emote if its in the list ; hardcoded value
 			If (IsMessageEven[Channel] = !IsMessageEven[Channel])
 				Emote .= A_InvisibleCharacter
 			LastTriggeredMessageTime[Channel] := TagsArray["tmi-sent-ts"]
@@ -130,7 +130,7 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 			If (RegExMatch(Msg, Needle) and Nick = MiscTriggers["Nick", each])
 			this.SendPRIVMSG(Channel, MiscTriggers["Response", each])
 			}
-;				COMMANDS																																													;
+				; COMMANDS
 		CommandTriggerNeedleRegEx := "^\s*" . CommandTrigger[Channel] . "(\S+)(?:\s+(.+?))?\s*$"
 		BlackListNeedleRegEx := "i)^(" . BlackList[Channel] . "|" . BlackList["global"] . ")$"
 		If ((RegExMatch(Msg, CommandTriggerNeedleRegEx, CommandRegExMatch)) and !(RegExMatch(User, BlackListNeedleRegEx))) {
@@ -252,14 +252,14 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 					Else if (Command = "HeyBotmanINeedHelpThanks") { ; Pings the botman in his channel
 						this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " i pinged " SettingsBotOwner " in his channel, give him a sec")
 						If (Param)
-							this.SendPRIVMSG("#grayfox1996", MoodEmotes[Channel, "good"] " 📣 hey grayfox, " DisplayName " in " Channel " needs your help : " Param) ; hardcoded value
+							this.SendPRIVMSG("#" SettingsBotOwner, MoodEmotes[Channel, "good"] " 📣 hey " SettingsBotOwner ", " DisplayName " in " Channel " needs your help: " Param) ; hardcoded value
 						Else
-							this.SendPRIVMSG("#grayfox1996", MoodEmotes[Channel, "good"] " 📣 hey grayfox, " DisplayName " in " Channel " needs your help") ; hardcoded value
+							this.SendPRIVMSG("#" SettingsBotOwner, MoodEmotes[Channel, "good"] " 📣 hey " SettingsBotOwner ", " DisplayName " in " Channel " needs your help") ; hardcoded value
 						}
 					Else if (Command = "Command" or Command = "Commands") { ; Sends a list of commands
 						this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " 📣 List of commands: " ListsOfCommands[Channel, "list"] " Mod only commands: " ListsOfModCommands[Channel, "list"])
 						}
-;				MOD COMMANDS																																											;
+				; MOD COMMANDS
 					Else if ((Nick = SettingsBotOwner) or ModCheck or BroadcasterCheck) { ; Checks if the bot owner or a mod or the broadcaster are requesting the command
 						If (Command = "PauseBot") { ; Pauses the bot
 							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " 👍 turning commands off")
@@ -307,10 +307,10 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 							OBSSetup := Param . ".vbs"
 							Run, %Param% , NOOBS CMDR Commands\, Hide, ; hardcoded value
 							}
-						Else if (Command = "Sendmessage") {
+						Else if (Command = "Sendmessage") { ; Sends "Param", useful to make the bot send commands like /color
 							this.SendPRIVMSG(Channel, Param)
 							}
-						Else if (Command = "Hachudeer") { ; widepeepoHappy
+						Else if (Command = "Hachudeer") { ; widepeepoHappy https://www.twitch.tv/hachubby
 							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "happy"] " ⣿⣿⣿⣿⣿⣿⣿⢿⣿⠏⠉⢹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠻⣿⣿⣿⣿ ⣿⣿⣿⣿⣿⣿⠄⠄⠈⠄⠄⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠄⠄⣿⣿⣿⣿ ⣿⣿⣿⣿⣿⣿⣿⣦⠄⠄⠄⠿⠿⠛⠛⠛⠛⠿⠿⣿⣿⣿⣿⡟⠄⠄⠘⠛⢻⣿ ⣿⣿⣿⣿⣿⣿⣿⡿⠃⣀⣤⣴⣶⣶⣶⣶⣶⣦⣤⣀⠉⠛⠋⠄⠄⢀⣤⣤⣾⣿ ⣿⣿⠿⠛⠋⠉⢀⣴⡏⠄⢀⠿⠟⠛⠛⠿⢿⣿⡟⠛⠛⣦⡀⠄⢰⣿⣿⣿⣿⣿ ⣿⡇⠄⢶⠟⠠⠿⠛⠛⠉⠁⠄⠸⠿⠗⠄⠄⠙⠳⢤⣤⣿⣿⡄⠄⠙⢿⣿⣿⣿ ⣿⣧⡀⠄⠄⠄⢀⣠⣴⣶⠆⣀⣀⠄⠄⢀⣀⠠⣄⠄⠙⢿⣿⣿⠄⠄⠄⠈⠻⣿ ⣿⣿⣿⡇⣠⣾⠿⢛⣉⣴⣾⣿⣿⣿⣿⣿⣿⣷⣌⢿⣦⡀⠙⠁⠄⠄⠄⠄⠄⣿ ⣿⣿⡟⡰⠋⠄⣾⡇⠄⣻⣿⣿⣿⣿⣿⠏⠉⣿⣿⡌⣿⣿⡀⠄⠄⠄⢀⣀⣼⣿ ⣿⣿⢡⠃⠠⢠⣿⣿⣾⣿⣿⣿⣿⣿⣿⣷⣴⣿⣿⣷⢈⣭⡅⠄⠄⣸⣿⣿⣿⣿ ⣿⣿⡈⣆⠄⣾⣿⣿⣿⣷⣝⣛⣫⣾⣿⣿⣿⣿⣿⣿⣿⣿⠇⠄⠄⣿⣿⣿⣿⣿ ⣿⣿⣧⠹⣧⠈⢿⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠁⢀⣴⡄⢿⣿⣿⣿⣿ ⣿⣿⣿⡇⣿⡇⠄⠄⠄⠉⠻⠛⠟⠋⠉⠄⠄⠙⠋⠁⠄⢠⣿⣿⡇⢸⣿⣿⣿⣿ ⣿⡿⢋⣴⡿⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠸⣿⡿⠃⢸⣿⣿⣿⣿ ⣿⣷⣿⣿⣾⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣾⣶⣶⣿⣿⣿⣿⣿ ") ; hardcoded value
 							}
 						Else if (Command = "Gettags") { ; Sends out the tags of the message
@@ -372,7 +372,7 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 				}
 			}
 		}
-;				WHISPER COMMANDS																																										;
+				; WHISPER COMMANDS
 	onWHISPER(Tags,Nick,User,Host,Cmd,Params,Msg,Data) {
 		BlackListNeedleRegEx := "i)^(" . BlackList["global"] . ")$"
 		WhisperWhiteListNeedleRegEx := "i)^(" . WhisperWhitelist . ")$"
@@ -394,26 +394,26 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 			}
 		}
 	onNOTICE(Tags,Nick,User,Host,Cmd,Params,Msg,Data){
-;		this.SendPRIVMSG("#" SettingsNicks, "Data recieved from a NOTICE command:" Data)
+		; this.SendPRIVMSG("#" SettingsNicks, "Data recieved from a NOTICE command:" Data)
 		}
 	Log(Data) { ; This function gets called for every raw line from the server 
 		Print(Data) ; Print the raw data received from the server
 		}
 	}
-;																																																			;
-;				FUNCTIONS																																												;
-;																																																			;
+;										
+;				FUNCTIONS				
+;										
 Print(Params*) {
-;	static _ := DllCall("AllocConsole") ; Create a console on script start
-;	StdOut := FileOpen("*", "w") ; Open the standard output
+	; static _ := DllCall("AllocConsole") ; Create a console on script start
+	; StdOut := FileOpen("*", "w") ; Open the standard output
 	for each, Param in Params { ; Iterate over function parameters
-;		StdOut.Write(Param "`n") ; Append the parameter to the standard output
+		; StdOut.Write(Param "`n") ; Append the parameter to the standard output
 		If (SettingsShowGui) {
 			Gui, Submit , NoHide
 			UIChatLogVariable := UIChatLogVariable . Param . "`n`n"
 			UIChatLogVariable := SubStr(UIChatLogVariable, -20000)
 			GuiControl,, %UIChatLog% , %UIChatLogVariable%
-			SendMessage, 0x0115, 7, 0, , ahk_id %UIChatLog% ;WM_VSCROLL SB_RIGHT
+			SendMessage, 0x0115, 7, 0, , ahk_id %UIChatLog% ; WM_VSCROLL SB_RIGHT
 			}
 		}
 	}
@@ -626,12 +626,12 @@ PauseBot(PauseOrNot = 1) {
 	}
 
 SaveCurrentSong() {
-;	global MyBot
+	; global MyBot
 	If !(SongArtistAndTitleFromSpotify = "Nothing") and !(SendDataVar2 = "Nothing")
 		PreviousSongArtistAndTitleFromSpotify := SongArtistAndTitleFromSpotify
 	If (SendDataVar2)
 		SongArtistAndTitleFromSpotify := SendDataVar2
-;	MyBot.SendPRIVMSG("#" SettingsNicks, SendDataVar1 SendDataVar2 SendDataVar3 SendDataVar4 SendDataVar5)
+	; MyBot.SendPRIVMSG("#" SettingsNicks, SendDataVar1 SendDataVar2 SendDataVar3 SendDataVar4 SendDataVar5)
 	}
 
 ShowLastCommandSent(MessageText := "") {
