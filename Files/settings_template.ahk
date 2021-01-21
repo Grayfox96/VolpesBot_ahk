@@ -1,19 +1,19 @@
-global SettingsShowGui	:= 1																		;	1 for yes, 0 for no
-global SettingsTrayIcon	:= 1																		;	1 for yes, 0 for no
+global SettingsShowGui	:= 1 ; 1 for yes, 0 for no
+global SettingsTrayIcon	:= 1 ; 1 for yes, 0 for no
 global SettingsAddress	:= "irc.chat.twitch.tv"
 global SettingsPort		:= "6667"
-global SettingsNicks	:= "volpesbot"																;	login name of the bot
-global SettingsUser		:= "volpesbot"																;	login name of the bot
-global SettingsName		:= "volpesbot"																;	login name of the bot
+global SettingsNicks	:= "volpesbot" ; login name of the bot
+global SettingsUser		:= "volpesbot" ; login name of the bot
+global SettingsName		:= "volpesbot" ; login name of the bot
 global SettingsPass		:= ""
-FileRead, SettingsPass, files\twitchoauth.txt														;	place the oauth key in this file
-global SettingsChannels := ["#channel1", "#channel2"]												;	array list of channels you want your bot to connect to
+FileRead, SettingsPass, Files\twitchoauth.txt ; place the oauth key in this file
+global SettingsChannels := ["#channel1", "#channel2"] ; array list of channels you want your bot to connect to
 global SettingsChannelsVariable := AddChannels()
-global SettingsBotOwner	:= "botowner"																;	your login name
-global SettingsOBSCommandPath := "C:\some\folder\name goes here\OBSCommand\"						;	location of your OBSCommand executable
-global SettingsOBSCommandPass := "supersecretpassword"												;	password of the obs websocket server plugin
+global SettingsBotOwner	:= "botowner" ; your login name
+global SettingsOBSCommandPath := "C:\some\folder\name goes here\OBSCommand\" ; location of your OBSCommand executable
+global SettingsOBSCommandPass := "supersecretpassword" ; password of the obs websocket server plugin
 global ListsOfCommands := []
-ListsOfCommands["list"]						:=	["hi", "bot", "slap", "help", "ping", "dank", "song", "nowplaying", "lastsong", "previoussong", "joinchannel", "leavechannel", "heybotmanineedhelpthanks", "commands", "command"]	; array of all commands
+ListsOfCommands["list"] := ["hi", "bot", "slap", "help", "ping", "dank", "song", "nowplaying", "lastsong", "previoussong", "joinchannel", "leavechannel", "heybotmanineedhelpthanks", "commands", "command"]	; array of all commands
 ListsOfCommands["#channel1", "list"]				:=	"hi, bot, slap, help, ping, dank, song, nowplaying, lastsong, previoussong, joinchannel, leavechannel, heybotmanineedhelpthanks, commands, command."	; a string of all commands you want active in a particular channel
 ListsOfCommands["#channel2", "list"]				:=	"hi, bot, slap, help, ping, dank, song, nowplaying, lastsong, previoussong, joinchannel, leavechannel, heybotmanineedhelpthanks, commands, command."	; a string of all commands you want active in a particular channel
 ListsOfCommands["help"]						:=	{"hi": " i say hi back to you... Usage: hi"																														; associative array of all commands as keys and their descriptions are values
@@ -69,7 +69,7 @@ global AutomaticMessage						:=	{"#channel1": ["FeelsDankMan Join for deep art a
 																, "FeelsDankMan at least 2 messages were sent since the last announcement and this is announcement n3"]}
 global MiscTriggers							:=	{"NeedleRegEx":	["trigger number one",	"test123"]	; associative array: the 3 keys are a regex needle array, a nick array and a response array, the bot answers to the specific sender sending the specific message with a specific answer
 												, "Nick":		["usernumberone",		"streamelements"]
-												,"Response":	["hello usernumberone",	"stop testing streamelements"}
+												,"Response":	["hello usernumberone",	"stop testing streamelements"]}
 global BlackList							:=	{"global": "a_bot|some_other_user"	;array of strings with "global" and channel names as the keys and a string of blacklisted usernames as the values
 												, "#channel1": "bad_guys_name|annoying_dude"
 												, "#channel2": "another_annoying_dude|that_guy_you_dont_like"}

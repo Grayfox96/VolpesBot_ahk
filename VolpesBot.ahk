@@ -33,6 +33,11 @@ If !(FileExist("Files\Settings.ahk")) {
 	MsgBox, % "edit the ""settings_template.ahk"" file in the ""Files"" directory and rename it ""Settings.ahk"", bot might break if you dont fill out all the fields" ; hardcoded value
 	ExitApp
 	}
+
+If !(FileExist("Files\RewardRedeems.ahk")) {
+	MsgBox, % "edit the ""rewardredeems_template.ahk"" file in the ""Files"" directory and rename it ""RewardRedeems.ahk"", bot might break if you dont fill out all the fields" ; hardcoded value
+	ExitApp
+	}
 #Include Files\Settings.ahk
 If !(SettingsTrayIcon)
 	#NoTrayIcon
@@ -78,21 +83,7 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 			}
 				; REWARDS REDEEMS
 		If (TagsArray["custom-reward-id"]) { ; Redeems points rewards
-			If (TagsArray["custom-reward-id"] = "ec6e4fe7-10aa-4edf-af39-feed316d9f81") { ; hardcoded value
-				this.SendPRIVMSG(Channel, "ClappyJam yay " DisplayName " redeemed Test1 with message: " Msg) ; hardcoded value
-				}
-			Else if (TagsArray["custom-reward-id"] = "e65cdfd3-a37b-42e3-8612-cfae55bcad3a") { ; hardcoded value
-				TimeoutRewardSplit := StrSplit(Msg , A_Space)
-				this.SendPRIVMSG(Channel, "/timeout " TimeoutRewardSplit[1] " 600")
-				}
-			Else if (TagsArray["custom-reward-id"] = "de3ba6b8-2059-480f-859e-540023f24f5a") { ; hardcoded value
-				TimeoutRewardSplit := StrSplit(Msg , A_Space)
-				this.SendPRIVMSG(Channel, "/vip " TimeoutRewardSplit[1])
-				}
-			Else if (TagsArray["custom-reward-id"] = "9ce19df5-40c8-4893-80c6-4f21727e93ef") { ; hardcoded value
-				TimeoutRewardSplit := StrSplit(Msg , A_Space)
-				this.SendPRIVMSG(Channel, "/unvip " TimeoutRewardSplit[1])
-				}
+			#Include Files\RewardRedeems.ahk ; hardcoded value
 			}
 				; TRIGGERS
 		PingedNeedleRegEx := "i)(?:^|\h|\R|\v)(@" SettingsUser ")(?:$|\h|\R|\v)"
