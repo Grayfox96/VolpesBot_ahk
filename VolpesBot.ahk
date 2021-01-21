@@ -91,10 +91,8 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 		DisplayName := TagsArray["display-name"] ; hardcoded value
 		ModCheck := TagsArray["Mod"] ; hardcoded value
 		BroadcasterCheck := InStr(TagsArray["badges"], "broadcaster") ; hardcoded value
-		MoodEmotesNeedleRegEx := "^(?<Happy>[^,]*),(?<Good>[^,]*),(?<Weird>[^,]*),(?<Bad>[^,]*)"
-		RegExMatch(MoodEmotes[Channel], MoodEmotesNeedleRegEx , MoodEmote)
-		BannedPhrasesNeedleRegEx := "(?:^|\h|\R|\v)(" . BannedPhrases[Channel] . ")(?:$|\h|\R|\v)"
-		If RegExMatch(Msg, BannedPhrasesNeedleRegEx, BannedEmote) {
+		BannedPhrasesNeedleRegEx := "(?:^|\h|\R|\v)(" . BannedPhrases[Channel] . "|" . BannedPhrases["global"] . ")(?:$|\h|\R|\v)"
+		If RegExMatch(Msg, BannedPhrasesNeedleRegEx) {
 			this.SendPRIVMSG(Channel, "/delete " TagsArray["id"])
 			}
 ;				REWARDS REDEEMS																																										;
@@ -118,12 +116,12 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 ;				TRIGGERS																																													;
 		PingedNeedleRegEx := "i)(?:^|\h|\R|\v)(@" SettingsUser ")(?:$|\h|\R|\v)"
 		If RegExMatch(Msg, PingedNeedleRegEx) {
-			this.SendPRIVMSG(Channel, "👋 " MoodEmoteGood " hi " DisplayName "! I'm a bot.") ; hardcoded value
+			this.SendPRIVMSG(Channel, "👋 " MoodEmotes[Channel, "good"] " hi " DisplayName "! I'm a bot.") ; hardcoded value
 			}
 		TimeDifference := TagsArray["tmi-sent-ts"] - LastTriggeredMessageTime[Channel] - 30000
 		EmotesTriggersNeedleRegEx := "(?:^|\h|\R|\v)(" . EmotesTriggers[Channel] . ")(?:$|\h|\R|\v)"
-		If ((RegExMatch(Msg, EmotesTriggersNeedleRegEx, Emote)) and (!(LastTriggeredMessageTime[Channel]) or (TimeDifference > 0))) { ; Sends an emote if its in the list ; hardcoded value
-			If (IsMessageEven[Channel] := !IsMessageEven[Channel])
+		If ((!(TimeDifference > 0) or (LastTriggeredMessageTime[Channel])) and (RegExMatch(Msg, EmotesTriggersNeedleRegEx, Emote))) { ; Sends an emote if its in the list ; hardcoded value
+			If (IsMessageEven[Channel] = !IsMessageEven[Channel])
 				Emote .= A_InvisibleCharacter
 			LastTriggeredMessageTime[Channel] := TagsArray["tmi-sent-ts"]
 			this.SendPRIVMSG(Channel, Emote)
@@ -134,9 +132,8 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 			}
 ;				COMMANDS																																													;
 		CommandTriggerNeedleRegEx := "^\s*" . CommandTrigger[Channel] . "(\S+)(?:\s+(.+?))?\s*$"
-		BlackListNeedleRegEx := "i)^(" . BlackList[Channel] . ")$"
-		GlobalBlackListNeedleRegEx := "i)^(" . BlackList["global"] . ")$"
-		If ((RegExMatch(Msg, CommandTriggerNeedleRegEx, CommandRegExMatch)) and !(RegExMatch(User, BlackListNeedleRegEx)) and !(RegExMatch(User, GlobalBlackListNeedleRegEx))) {
+		BlackListNeedleRegEx := "i)^(" . BlackList[Channel] . "|" . BlackList["global"] . ")$"
+		If ((RegExMatch(Msg, CommandTriggerNeedleRegEx, CommandRegExMatch)) and !(RegExMatch(User, BlackListNeedleRegEx))) {
 			Command := CommandRegExMatch1 ; Command is the first capturing subpattern in the RegEx
 			Param := CommandRegExMatch2 ; The parameter is the second capturing subpattern in the RegEx
 			If (SettingsShowGui)
@@ -145,7 +142,7 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 				ToolTip, %LastCommandMessage% , 1900, 1040, 1 ; This displays a ToolTip in the form of "<DisplayName> Message someone sent"
 			If (Paused) { ; Actions if the bot is paused
 				If (Command = "UnpauseBot" and Nick = SettingsBotOwner) { ; Unpauses the bot
-					this.SendPRIVMSG(Channel, MoodEmoteGood " 👍 turning commands on")
+					this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " 👍 turning commands on")
 					PauseBot(0)
 					}
 				}
@@ -169,7 +166,7 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 						this.SendPRIVMSG(Channel, CustomCommandOutput)
 						}
 					Else if (Command = "Hi" or Command = "Bot") { ; Send a chat message saying "Hello Nick!" in the channel that the command was triggered in
-						this.SendPRIVMSG(Channel, "👋 " MoodEmoteGood " hi " DisplayName "! I'm a bot. You can find a copy of me here https://grayfox96.github.io/VolpesBot/")
+						this.SendPRIVMSG(Channel, "👋 " MoodEmotes[Channel, "good"] " hi " DisplayName "! I'm a bot. You can find a copy of me here https://grayfox96.github.io/VolpesBot/")
 						}
 					Else if (Command = "Slap") { ; Send a "/me slaps Parameter" to the channel the command was triggered in
 						this.SendACTION(Channel, "slaps " Param)
@@ -178,40 +175,40 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 						If (Param) {
 							StringLower, Param, Param
 							CommandExplanation := (ListsOfCommands["help", Param]) ? (ListsOfCommands["help", Param]) : "idk sory"
-							this.SendPRIVMSG(Channel, MoodEmoteGood CommandExplanation)
+							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] CommandExplanation)
 							}
 						Else {
-							this.SendPRIVMSG(Channel, MoodEmoteGood " if you need help with a command type " CommandTrigger[Channel] "help {name of the command}, if you want to talk to " SettingsBotOwner " type " CommandTrigger[Channel] "HeyBotmanINeedHelpThanks followed by a reason")
+							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " if you need help with a command type " CommandTrigger[Channel] "help {name of the command}, if you want to talk to " SettingsBotOwner " type " CommandTrigger[Channel] "HeyBotmanINeedHelpThanks followed by a reason")
 							}
 						}
 					Else if (Command = "Ping") { ; Sends a test message with the uptime
-						this.SendPRIVMSG(Channel, MoodEmoteGood " 🏓 pong... ive been alive since " Uptime() " ago.")
+						this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " 🏓 pong... ive been alive since " Uptime() " ago.")
 						}
 					Else if (Command = "Dank") { ; Tells you how much dank you are
 						Random, rand, 1, 100
 						If (Param) {
-							this.SendPRIVMSG(Channel, MoodEmoteGood " 📣 " Param " is " rand "% dank")
+							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " 📣 " Param " is " rand "% dank")
 							}
 						Else {
-							this.SendPRIVMSG(Channel, MoodEmoteGood " 📣 " DisplayName " is " rand "% dank")
+							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " 📣 " DisplayName " is " rand "% dank")
 							}
 						}
 					Else if (Command = "Song" or Command = "Nowplaying") { ; Sends the current song playing in chat (only spotify implemented for now)
 						If (SongArtistAndTitleFromSpotify) {
-							this.SendPRIVMSG(Channel, MoodEmoteGood " 📣 Now playing: " SongArtistAndTitleFromSpotify "")
+							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " 📣 Now playing: " SongArtistAndTitleFromSpotify "")
 							}
 						Else
 							{
-							this.SendPRIVMSG(Channel, MoodEmoteBad " idk ask grayfox") ; hardcoded value
+							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "bad"] " idk ask grayfox") ; hardcoded value
 							}
 						}
 					Else if (Command = "Lastsong" or Command = "Previoussong") {
 						If (PreviousSongArtistAndTitleFromSpotify) {
-							this.SendPRIVMSG(Channel, MoodEmoteGood " 📣 The last song was: " PreviousSongArtistAndTitleFromSpotify "")
+							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " 📣 The last song was: " PreviousSongArtistAndTitleFromSpotify "")
 							}
 						Else
 							{
-							this.SendPRIVMSG(Channel, MoodEmoteBad " idk ask grayfox") ; hardcoded value
+							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "bad"] " idk ask grayfox") ; hardcoded value
 							}
 						}
 					Else if (Command = "Joinchannel") { ; Joins a channel
@@ -219,16 +216,16 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 							ParamSplit := StrSplit(Param, A_Space)
 							If (RegExMatch(Paramsplit[1], "^[a-zA-Z0-9][\w]{3,24}$")) {
 								JoinNewChannel(ParamSplit[1])
-								this.SendPRIVMSG(Channel, MoodEmoteGood " joined channel " Paramsplit[1])
+								this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " joined channel " Paramsplit[1])
 								}
 							Else {
-								this.SendPRIVMSG(Channel, MoodEmoteGood " to make me join a channel type ""joinchannel {channel name}""") ; hardcoded value
+								this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " to make me join a channel type ""joinchannel {channel name}""") ; hardcoded value
 								}
 							}
 						Else {
 							JoinNewChannel(Nick)
-							this.SendPRIVMSG(Channel, MoodEmoteGood " joined channel " Nick)
-							this.SendPRIVMSG("#grayfox1996", MoodEmoteGood " i joined " Nick "'s channel") ; hardcoded value
+							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " joined channel " Nick)
+							this.SendPRIVMSG("#grayfox1996", MoodEmotes[Channel, "good"] " i joined " Nick "'s channel") ; hardcoded value
 							}
 						}
 					Else if (Command = "Leavechannel") { ; Parts a channel
@@ -237,35 +234,35 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 							ParamSplit := StrSplit(Param, A_Space)
 							If (RegExMatch(Paramsplit[1], "^[a-zA-Z0-9][\w]{3,24}$")) {
 								PartChannel(ParamSplit[1])
-								this.SendPRIVMSG(Channel, MoodEmoteBad " left channel " Param[1])
+								this.SendPRIVMSG(Channel, MoodEmotes[Channel, "bad"] " left channel " Param[1])
 								}
 							Else {
-								this.SendPRIVMSG(Channel, MoodEmoteGood " to make me leave a channel type ""!leavechannel {channel name}""") ; hardcoded value
+								this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " to make me leave a channel type ""!leavechannel {channel name}""") ; hardcoded value
 								}
 							}
 						Else if (Nick = ChannelName) {
-							this.SendPRIVMSG(Channel, MoodEmoteBad " you can find me again in " SettingsBotOwner "'s channel if you want me to join again")
+							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "bad"] " you can find me again in " SettingsBotOwner "'s channel if you want me to join again")
 							PartChannel(Nick)
-							this.SendPRIVMSG(Channel, MoodEmoteBad " left channel " Nick)
+							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "bad"] " left channel " Nick)
 							}
 						Else {
-							this.SendPRIVMSG(Channel, MoodEmoteWeird " you cant use that command in this channel") ; hardcoded value
+							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "weird"] " you cant use that command in this channel") ; hardcoded value
 							}
 						}
 					Else if (Command = "HeyBotmanINeedHelpThanks") { ; Pings the botman in his channel
-						this.SendPRIVMSG(Channel, MoodEmoteGood " i pinged " SettingsBotOwner " in his channel, give him a sec")
+						this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " i pinged " SettingsBotOwner " in his channel, give him a sec")
 						If (Param)
-							this.SendPRIVMSG("#grayfox1996", MoodEmoteGood " 📣 hey grayfox, " DisplayName " in " Channel " needs your help : " Param) ; hardcoded value
+							this.SendPRIVMSG("#grayfox1996", MoodEmotes[Channel, "good"] " 📣 hey grayfox, " DisplayName " in " Channel " needs your help : " Param) ; hardcoded value
 						Else
-							this.SendPRIVMSG("#grayfox1996", MoodEmoteGood " 📣 hey grayfox, " DisplayName " in " Channel " needs your help") ; hardcoded value
+							this.SendPRIVMSG("#grayfox1996", MoodEmotes[Channel, "good"] " 📣 hey grayfox, " DisplayName " in " Channel " needs your help") ; hardcoded value
 						}
 					Else if (Command = "Command" or Command = "Commands") { ; Sends a list of commands
-						this.SendPRIVMSG(Channel, MoodEmoteGood " 📣 List of commands: " ListsOfCommands[Channel, "list"] " Mod only commands: " ListsOfModCommands[Channel, "list"])
+						this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " 📣 List of commands: " ListsOfCommands[Channel, "list"] " Mod only commands: " ListsOfModCommands[Channel, "list"])
 						}
 ;				MOD COMMANDS																																											;
 					Else if ((Nick = SettingsBotOwner) or ModCheck or BroadcasterCheck) { ; Checks if the bot owner or a mod or the broadcaster are requesting the command
 						If (Command = "PauseBot") { ; Pauses the bot
-							this.SendPRIVMSG(Channel, MoodEmoteGood " 👍 turning commands off")
+							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " 👍 turning commands off")
 							PauseBot(1)
 							}
 						Else if (Command = "Pyramid") { ; Sends multiple messages to create a pyramid of emotes
@@ -274,7 +271,7 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 								SendAPyramid(Channel, MsgPyramidSplit[1], MsgPyramidSplit[2])
 								}
 							Else {
-								this.SendPRIVMSG(Channel, MoodEmoteGood " you forgot the emote")
+								this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " you forgot the emote")
 								}
 							}
 						Else if (Command = "Timeout") { ; Times out a user
@@ -285,28 +282,28 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 							}
 						Else if (Command = "ToggleSceneOrSource") { ; Toggles a source in OBS
 							ToggleSceneOrSource(Param)
-							this.SendPRIVMSG(Channel, MoodEmoteGood " 👍 done")
+							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " 👍 done")
 							}
 						Else if (Command = "Showemote") { ; Downloads an emote file and shows it in OBS
 							If (Param) {
 								If (Param = "random") {
 									Response := SendEmoteToOBS("random")
-									this.SendPRIVMSG(Channel, MoodEmoteGood " showing " Response)
+									this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " showing " Response)
 									}
 								Else {
 									Response := ParseEmoteUrl(Param)
 									If (Response[2]) {
 										SendEmoteToOBS(Response[2])
 										}
-									this.SendPRIVMSG(Channel, MoodEmoteGood " downloaded " Response[1])
+									this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " downloaded " Response[1])
 									}
 								}
 							Else {
-								this.SendPRIVMSG(Channel, MoodEmoteGood " you forgot the emote link")
+								this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " you forgot the emote link")
 								}
 							}
 						Else if (Command = "OBSSetup") { ; Changes settings in obs by opening a NOOBS CMDR file https://obsproject.com/forum/resources/nuttys-official-obs-commander-noobs-cmdr.1178/
-							this.SendPRIVMSG(Channel, MoodEmoteGood " OBS set to " Param) ; hardcoded value
+							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " OBS set to " Param) ; hardcoded value
 							OBSSetup := Param . ".vbs"
 							Run, %Param% , NOOBS CMDR Commands\, Hide, ; hardcoded value
 							}
@@ -314,10 +311,10 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 							this.SendPRIVMSG(Channel, Param)
 							}
 						Else if (Command = "Hachudeer") { ; widepeepoHappy
-							this.SendPRIVMSG(Channel, MoodEmoteHappy " ⣿⣿⣿⣿⣿⣿⣿⢿⣿⠏⠉⢹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠻⣿⣿⣿⣿ ⣿⣿⣿⣿⣿⣿⠄⠄⠈⠄⠄⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠄⠄⣿⣿⣿⣿ ⣿⣿⣿⣿⣿⣿⣿⣦⠄⠄⠄⠿⠿⠛⠛⠛⠛⠿⠿⣿⣿⣿⣿⡟⠄⠄⠘⠛⢻⣿ ⣿⣿⣿⣿⣿⣿⣿⡿⠃⣀⣤⣴⣶⣶⣶⣶⣶⣦⣤⣀⠉⠛⠋⠄⠄⢀⣤⣤⣾⣿ ⣿⣿⠿⠛⠋⠉⢀⣴⡏⠄⢀⠿⠟⠛⠛⠿⢿⣿⡟⠛⠛⣦⡀⠄⢰⣿⣿⣿⣿⣿ ⣿⡇⠄⢶⠟⠠⠿⠛⠛⠉⠁⠄⠸⠿⠗⠄⠄⠙⠳⢤⣤⣿⣿⡄⠄⠙⢿⣿⣿⣿ ⣿⣧⡀⠄⠄⠄⢀⣠⣴⣶⠆⣀⣀⠄⠄⢀⣀⠠⣄⠄⠙⢿⣿⣿⠄⠄⠄⠈⠻⣿ ⣿⣿⣿⡇⣠⣾⠿⢛⣉⣴⣾⣿⣿⣿⣿⣿⣿⣷⣌⢿⣦⡀⠙⠁⠄⠄⠄⠄⠄⣿ ⣿⣿⡟⡰⠋⠄⣾⡇⠄⣻⣿⣿⣿⣿⣿⠏⠉⣿⣿⡌⣿⣿⡀⠄⠄⠄⢀⣀⣼⣿ ⣿⣿⢡⠃⠠⢠⣿⣿⣾⣿⣿⣿⣿⣿⣿⣷⣴⣿⣿⣷⢈⣭⡅⠄⠄⣸⣿⣿⣿⣿ ⣿⣿⡈⣆⠄⣾⣿⣿⣿⣷⣝⣛⣫⣾⣿⣿⣿⣿⣿⣿⣿⣿⠇⠄⠄⣿⣿⣿⣿⣿ ⣿⣿⣧⠹⣧⠈⢿⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠁⢀⣴⡄⢿⣿⣿⣿⣿ ⣿⣿⣿⡇⣿⡇⠄⠄⠄⠉⠻⠛⠟⠋⠉⠄⠄⠙⠋⠁⠄⢠⣿⣿⡇⢸⣿⣿⣿⣿ ⣿⡿⢋⣴⡿⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠸⣿⡿⠃⢸⣿⣿⣿⣿ ⣿⣷⣿⣿⣾⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣾⣶⣶⣿⣿⣿⣿⣿ ") ; hardcoded value
+							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "happy"] " ⣿⣿⣿⣿⣿⣿⣿⢿⣿⠏⠉⢹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠻⣿⣿⣿⣿ ⣿⣿⣿⣿⣿⣿⠄⠄⠈⠄⠄⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠄⠄⣿⣿⣿⣿ ⣿⣿⣿⣿⣿⣿⣿⣦⠄⠄⠄⠿⠿⠛⠛⠛⠛⠿⠿⣿⣿⣿⣿⡟⠄⠄⠘⠛⢻⣿ ⣿⣿⣿⣿⣿⣿⣿⡿⠃⣀⣤⣴⣶⣶⣶⣶⣶⣦⣤⣀⠉⠛⠋⠄⠄⢀⣤⣤⣾⣿ ⣿⣿⠿⠛⠋⠉⢀⣴⡏⠄⢀⠿⠟⠛⠛⠿⢿⣿⡟⠛⠛⣦⡀⠄⢰⣿⣿⣿⣿⣿ ⣿⡇⠄⢶⠟⠠⠿⠛⠛⠉⠁⠄⠸⠿⠗⠄⠄⠙⠳⢤⣤⣿⣿⡄⠄⠙⢿⣿⣿⣿ ⣿⣧⡀⠄⠄⠄⢀⣠⣴⣶⠆⣀⣀⠄⠄⢀⣀⠠⣄⠄⠙⢿⣿⣿⠄⠄⠄⠈⠻⣿ ⣿⣿⣿⡇⣠⣾⠿⢛⣉⣴⣾⣿⣿⣿⣿⣿⣿⣷⣌⢿⣦⡀⠙⠁⠄⠄⠄⠄⠄⣿ ⣿⣿⡟⡰⠋⠄⣾⡇⠄⣻⣿⣿⣿⣿⣿⠏⠉⣿⣿⡌⣿⣿⡀⠄⠄⠄⢀⣀⣼⣿ ⣿⣿⢡⠃⠠⢠⣿⣿⣾⣿⣿⣿⣿⣿⣿⣷⣴⣿⣿⣷⢈⣭⡅⠄⠄⣸⣿⣿⣿⣿ ⣿⣿⡈⣆⠄⣾⣿⣿⣿⣷⣝⣛⣫⣾⣿⣿⣿⣿⣿⣿⣿⣿⠇⠄⠄⣿⣿⣿⣿⣿ ⣿⣿⣧⠹⣧⠈⢿⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠁⢀⣴⡄⢿⣿⣿⣿⣿ ⣿⣿⣿⡇⣿⡇⠄⠄⠄⠉⠻⠛⠟⠋⠉⠄⠄⠙⠋⠁⠄⢠⣿⣿⡇⢸⣿⣿⣿⣿ ⣿⡿⢋⣴⡿⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠸⣿⡿⠃⢸⣿⣿⣿⣿ ⣿⣷⣿⣿⣾⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣾⣶⣶⣿⣿⣿⣿⣿ ") ; hardcoded value
 							}
 						Else if (Command = "Gettags") { ; Sends out the tags of the message
-							this.SendPRIVMSG(Channel, MoodEmoteGood " These are the tags of your message: " Tags)
+							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " These are the tags of your message: " Tags)
 							}
 						Else if (Command = "Newcommand") { ; Creates a custom command
 							NewCommandNeedleRegEx := "^" . CommandTrigger[Channel] . "i)(?:[newcomad]{10}) (?P<Name>[^ !\$#]*) (?P<Parameter>.*)$"
@@ -329,14 +326,14 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 									IniRead, CommandFileSection, Files\CustomCommands.ini, %Channel%
 									CommandFileSection := CommandFileSection . "customcommand" . RegExCommandName . "=" . RegExCommandParameter
 									IniWrite, %CommandFileSection%, Files\CustomCommands.ini, %Channel%
-									this.SendPRIVMSG(Channel, MoodEmoteGood " created command """ RegExCommandName """")
+									this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " created command """ RegExCommandName """")
 									}
 								Else {
-									this.SendPRIVMSG(Channel, MoodEmoteGood " the """ RegExCommandName """ command already exists") ; hardcoded value
+									this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " the """ RegExCommandName """ command already exists") ; hardcoded value
 									}
 								}
 							Else {
-								this.SendPRIVMSG(Channel, MoodEmoteGood " to create a new command type ""!newcommand {name of the command} {reply to the command}, it doesnt support variables for now") ; hardcoded value
+								this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " to create a new command type ""!newcommand {name of the command} {reply to the command}, it doesnt support variables for now") ; hardcoded value
 								}
 							}
 						Else if (Command = "Deletecommand") { ; Deletes a custom command
@@ -347,29 +344,29 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 									IniRead, CommandToBeDeleted, Files\CustomCommands.ini, %Channel%, % "customcommand" . RegExCommandName, %A_Space%
 									If (CommandToBeDeleted) {
 										IniDelete, Files\CustomCommands.ini, %Channel%, % "customcommand" . RegExCommandName
-										this.SendPRIVMSG(Channel, MoodEmoteGood " deleted command """ RegExCommandName """")
+										this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " deleted command """ RegExCommandName """")
 										}
 									Else {
-										this.SendPRIVMSG(Channel, MoodEmoteGood " the """ RegExCommandName """ command doesnt exist") ; hardcoded value
+										this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " the """ RegExCommandName """ command doesnt exist") ; hardcoded value
 										}
 									}
 								Else {
-									this.SendPRIVMSG(Channel, MoodEmoteGood " you cant delete built-in commands") ; hardcoded value
+									this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " you cant delete built-in commands") ; hardcoded value
 									}
 								}
 							Else {
-								this.SendPRIVMSG(Channel, MoodEmoteGood " to delete a command type ""!deletecommand {name of the command}""") ; hardcoded value
+								this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " to delete a command type ""!deletecommand {name of the command}""") ; hardcoded value
 									}
 							}
 						Else if (Command = "Reload") { ; Reloads this script
 							if this.CanJoin
-								this.SendPRIVMSG(Channel, MoodEmoteGood " 👍 reloading the script")
+								this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " 👍 reloading the script")
 							Sleep 500
 							Reload
 							}
 						}
 					Else if (RegExMatch(ListsOfModCommands[Channel, "list"], CommandCheckNeedleRegEx)) { ; Warns the user they cant use a mod command
-						this.SendPRIVMSG(Channel, MoodEmoteWeird " you cant use that command")
+						this.SendPRIVMSG(Channel, MoodEmotes[Channel, "weird"] " you cant use that command")
 						}
 					}
 				}
@@ -397,7 +394,7 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 			}
 		}
 	onNOTICE(Tags,Nick,User,Host,Cmd,Params,Msg,Data){
-;		this.SendPRIVMSG("#" SettingsNicks, Tags "|" Nick "|" Cmd "|" Params[1] "|" Msg "|" Data)
+;		this.SendPRIVMSG("#" SettingsNicks, "Data recieved from a NOTICE command:" Data)
 		}
 	Log(Data) { ; This function gets called for every raw line from the server 
 		Print(Data) ; Print the raw data received from the server
@@ -414,6 +411,7 @@ Print(Params*) {
 		If (SettingsShowGui) {
 			Gui, Submit , NoHide
 			UIChatLogVariable := UIChatLogVariable . Param . "`n`n"
+			UIChatLogVariable := SubStr(UIChatLogVariable, -20000)
 			GuiControl,, %UIChatLog% , %UIChatLogVariable%
 			SendMessage, 0x0115, 7, 0, , ahk_id %UIChatLog% ;WM_VSCROLL SB_RIGHT
 			}

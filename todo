@@ -1,6 +1,6 @@
-create a remind function
+change the log function to create daily permanent logs
 do something with this https://tmi.twitch.tv/group/user/grayfox1996/chatters
-make a gui to populate the settings file
 change the REWARDS REDEEMS section
-change the log function to create daily permanent logs?
 tts : ComObjCreate("SAPI.SpVoice").Speak(Msg)
+create a remind function
+make a gui to populate the settings file
