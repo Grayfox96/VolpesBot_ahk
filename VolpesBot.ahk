@@ -36,8 +36,8 @@ If !(FileExist("Files\Settings.ahk")) {
 #Include Files\Settings.ahk
 If !(SettingsTrayIcon)
 	#NoTrayIcon
-If !(InStr(FileExist(PokemonGifsDir), "D") ) {
-	MsgBox, % "Pokemon gifs directory missing" ; hardcoded value
+If !(InStr(FileExist(GifsDir), "D") ) {
+	MsgBox, % "Gifs directory missing" ; hardcoded value
 	ExitApp
 	}
 If (SettingsShowGui)
@@ -55,30 +55,11 @@ Return
 SpotifySongChanged:
 	SaveCurrentSong()
 Return
-^F5::
-	InputBox, MessageToDeliver , %SettingsName%, Sending a message as %SettingsName%:, notHIDdEn, 247, 247, 392, 800, Locale, 30, 
-	If (ErrorLevel = "0" and MessageToDeliver) {
-		SendMessageToEveryChannel(MessageToDeliver)
-		}
-Return
-randompokemongif:
-	Random, number, 1, %NumberOfPokemonGifs%
-	pokemongif := % PokemonGifsArray[number]
-	PokemonGifsDirForward := StrReplace(PokemonGifsDir, "\" , "/")
-	json := """SetSourceSettings={'sourceName': 'pokemongif', 'sourceSettings': {'local_file': '" PokemonGifsDirForward . pokemongif . "'}}""" ; hardcoded value
-	Run, OBSCommand.exe /password=%SettingsOBSCommandPass% /sendjson=%json%, %SettingsOBSCommandPath%, Hide, ; hardcoded value
-Return
 GuiClose:
 	DetectHiddenWindows, On
 	SetTitleMatchMode, 2
 	WinKill, SpotifySongTimer.ahk ahk_pid %SpotifySongTimerPID%
 	ExitApp
-Return
-HideLastCommandSent:
-	If (SettingsShowGui) {
-		GuiControl,, %UILastCommandWindowText% ,
-		SetTimer,, Off
-		}
 Return
 ;										
 ;				BOT CLASS				
@@ -636,7 +617,21 @@ SaveCurrentSong() {
 
 ShowLastCommandSent(MessageText := "") {
 	If (SettingsShowGui) {
-		GuiControl,, %UILastCommandWindowText% , %MessageText%
-		SetTimer , HideLastCommandSent, 5000
+		If (MessageText) {
+			GuiControl,, %UILastCommandWindowText% , %MessageText%
+			SetTimer, ShowLastCommandSent, 10000
+			}
+		Else {
+			GuiControl,, %UILastCommandWindowText% , 
+			SetTimer, ShowLastCommandSent, Off
+			}
 		}
+	}
+
+RandomGif() {
+	Random, number, 1, %NumberOfGifs%
+	GifsDirForward := StrReplace(GifsDir, "\" , "/")
+	GifFullPath := GifsDirForward . GifsArray[number]
+	json := """SetSourceSettings={'sourceName': 'gif', 'sourceSettings': {'local_file': '" GifFullPath . "'}}""" ; hardcoded value
+	Run, OBSCommand.exe /password=%SettingsOBSCommandPass% /sendjson=%json%, %SettingsOBSCommandPath%, Hide, ; hardcoded value
 	}

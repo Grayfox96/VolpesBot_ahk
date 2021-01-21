@@ -81,8 +81,8 @@ global MessagesSinceLastAutomatedMessage := []
 global AutomatedMessageNumber := []
 global IsMessageEven := []
 global LastTriggeredMessageTime := []
-global PokemonGifsArray := []
-global PokemonGifsDir := "C:\some\folder\with\some\Pokemon gifs\"							; directory for a list of gifs
-Loop, Files, %PokemonGifsDir%*
-	PokemonGifsArray.push(A_LoopFileName)
-global NumberOfPokemonGifs := PokemonGifsArray.Length()
+global GifsDir := "C:\some\folder\with\some\gifs\"							; directory for a list of gifs
+global GifsArray := []
+Loop, Files, %GifsDir%*
+	GifsArray.push(A_LoopFileName)
+global NumberOfGifs := GifsArray.Length()
