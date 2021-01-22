@@ -57,8 +57,8 @@ global EmotesTriggers						:=	{"#channel1": "ayayaJAM|Anone|AYAYA|FeelsStrongMan
 												, "#channel2": "FeelsDankMan|DankG|FeelsStrongMan GuitarTime|D:"}
 global MoodEmotes							:=	{"#channel1":		{"happy": "widepeepoHappy",		"good": "FeelsDankMan",		"weird": "grayfoxWeirdDude",	"bad": "KEKWait"} ; associative array with channel names as keys and as values associative arrays with an emote class as key and the emote code as the value
 												, "#channel2":		{"happy": "FeelsAmazingMan",	"good": "MrDestructoid",	"weird": "FUNgineer",			"bad": "FeelsBadMan"}}
-global BannedPhrases						:=	{"global": "bigfollows .com|clck.ru"
-												, "#channel1": "NaM|AYAYA"	;string of banned phrases
+global BannedPhrases						:=	{"global": "bigfollows \.com|clck\.ru" ;string of banned phrases ; Characters that need to be escaped:	+*?^$\.[]{}()|/
+												, "#channel1": "NaM|AYAYA"
 												, "#channel2": "NaM|BannedPhrase|BannedPhrase2"}
 global NumberOfMessagesMIN					:=	{"#channel1": "20"	;minimum number of messages before the bot sends one of his automatic messages per channel
 												, "#channel2": "2"}

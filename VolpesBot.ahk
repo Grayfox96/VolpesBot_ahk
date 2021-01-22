@@ -33,7 +33,6 @@ If !(FileExist("Files\Settings.ahk")) {
 	MsgBox, % "edit the ""settings_template.ahk"" file in the ""Files"" directory and rename it ""Settings.ahk"", bot might break if you dont fill out all the fields" ; hardcoded value
 	ExitApp
 	}
-
 If !(FileExist("Files\RewardRedeems.ahk")) {
 	MsgBox, % "edit the ""rewardredeems_template.ahk"" file in the ""Files"" directory and rename it ""RewardRedeems.ahk"", bot might break if you dont fill out all the fields" ; hardcoded value
 	ExitApp
@@ -77,7 +76,7 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 		DisplayName := TagsArray["display-name"] ; hardcoded value
 		ModCheck := TagsArray["Mod"] ; hardcoded value
 		BroadcasterCheck := InStr(TagsArray["badges"], "broadcaster") ; hardcoded value
-		BannedPhrasesNeedleRegEx := "(?:^|\h|\R|\v)(" . BannedPhrases[Channel] . "|" . BannedPhrases["global"] . ")(?:$|\h|\R|\v)"
+		BannedPhrasesNeedleRegEx := "i)(" . BannedPhrases[Channel] . "|" . BannedPhrases["global"] . ")"
 		If RegExMatch(Msg, BannedPhrasesNeedleRegEx) {
 			this.SendPRIVMSG(Channel, "/delete " TagsArray["id"])
 			}
@@ -289,7 +288,7 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " These are the tags of your message: " Tags)
 							}
 						Else if (Command = "Newcommand") { ; Creates a custom command
-							NewCommandNeedleRegEx := "^" . CommandTrigger[Channel] . "i)(?:[newcomad]{10}) (?P<Name>[^ !\$#]*) (?P<Parameter>.*)$"
+							NewCommandNeedleRegEx := "i)^" . CommandTrigger[Channel] . "(?:[newcomad]{10}) (?P<Name>[^ !\$#]*) (?P<Parameter>.*)$"
 							If (RegExMatch(Msg, NewCommandNeedleRegEx, RegExCommand)) {
 								NewCommandNeedleRegEx := "i)" . RegExCommandName . "[,|.]"
 								IniRead, CustomCommandOutput, Files\CustomCommands.ini, %Channel%, % "customcommand" . RegExCommandName, %A_Space%
