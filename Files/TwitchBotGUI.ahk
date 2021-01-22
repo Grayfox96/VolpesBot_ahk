@@ -7,8 +7,8 @@ Gui, color, Black
 Gui, font, cBBBBBB
 UIMainWindowWidth := 1200
 UIMainWindowHeight := 800
-UIMainWindowXPos := A_ScreenWidth - UIMainWindowWidth - 20
-UIMainWindowYPos := 20
+UIMainWindowXPos := A_ScreenWidth - UIMainWindowWidth - 40
+UIMainWindowYPos := 40
 Gui, Show, w%UIMainWindowWidth% h%UIMainWindowHeight% x%UIMainWindowXPos% y%UIMainWindowYPos%, VolpesBot
 
 ; UIChatLog
@@ -58,21 +58,22 @@ GuiControl, Disable, %UISendMessageButton%
 
 ; Start of Last Command Window ========================================================================================================================================================================
 ; UILastCommandWindow
-global UILastCommandWindow := ""
-UILastCommandWindowXPos := 1920
-UILastCommandWindowYPos := 220
-Gui, New , HwndUILastCommandWindow, Last Command
-Gui,%UILastCommandWindow%:+Owner%UIMainWindow% +E0x20 -Caption +LastFound +ToolWindow +AlwaysOnTop
-WinSet, Transparent, 255
-Gui, color, 00FF00
-WinSet, TransColor, 00FF00
-Gui, font, cFFFFFF s14 q3
-
-; UILastCommandWindowText
-global UILastCommandWindowText := ""
-Gui, Add, Text, HwndUILastCommandWindowText R1 x0 y0, This displays the last command sent to the bot
-; End of Last Command Window ==========================================================================================================================================================================
-Gui, Show, NA w1368 x%UILastCommandWindowXPos% y%UILastCommandWindowYPos%, Last Command
+If (SettingsShowLastCommandGui) {
+	global UILastCommandWindow := ""
+	UILastCommandWindowXPos := 0 ; 1920
+	UILastCommandWindowYPos := 0 ; 220
+	Gui, New , HwndUILastCommandWindow, Last Command
+	Gui,%UILastCommandWindow%:+Owner%UIMainWindow% +E0x20 -Caption +LastFound +ToolWindow +AlwaysOnTop ; +E0x20 adds the clickthrough property
+	WinSet, Transparent, 255
+	Gui, color, 00FF00
+	WinSet, TransColor, 00FF00
+	Gui, font, cFFFFFF s14 q3 ; s14 is size, q3 removes antialiasing so transcolor works properly
+	; UILastCommandWindowText
+	global UILastCommandWindowText := ""
+	Gui, Add, Text, HwndUILastCommandWindowText R1 x0 y0, This displays the last command sent to the bot ; R1 means 1 row max
+	; End of Last Command Window ==========================================================================================================================================================================
+	Gui, Show, NA w%A_ScreenWidth% x%UILastCommandWindowXPos% y%UILastCommandWindowYPos%, Last Command
+	}
 ; End of UI elements ============================================================================================================================================================================================
 Gui, Submit , NoHide
 

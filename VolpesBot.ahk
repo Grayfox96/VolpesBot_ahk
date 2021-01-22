@@ -1,5 +1,4 @@
 ﻿#NoEnv ; Recommended for performance and compatibility with future AutoHotkey releases.
-; #Warn ; Enable warnings to assist with detecting common errors.
 #KeyHistory 0
 SendMode Input ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir% ; Ensures a consistent starting directory.
@@ -25,7 +24,12 @@ global A_InvisibleCharacter := " 󠀀 "
 global WorkingDirSlash := A_WorkingDir . "\"
 global EmoteDirSlash := WorkingDirSlash . "Emotes\"
 If !(InStr(FileExist(EmoteDirSlash), "D") ) {
-	MsgBox, % "Emotes directory missing, you can download emotes there using the ""showemote"" command" ; hardcoded value
+	MsgBox, % EmoteDirSlash " missing, downloaded emotes using the ""showemote"" command go there" ; hardcoded value
+	ExitApp
+	}
+global GifsDirSlash := WorkingDirSlash . "Gifs\"
+If !(InStr(FileExist(GifsDirSlash), "D") ) {
+	MsgBox, % GifsDirSlash . " missing, unused for now" ; hardcoded value
 	ExitApp
 	}
 global Paused := 0
@@ -34,18 +38,29 @@ If !(FileExist("Files\Settings.ahk")) {
 	ExitApp
 	}
 If !(FileExist("Files\RewardRedeems.ahk")) {
-	MsgBox, % "edit the ""rewardredeems_template.ahk"" file in the ""Files"" directory and rename it ""RewardRedeems.ahk"", bot might break if you dont fill out all the fields" ; hardcoded value
+	MsgBox, % "edit the ""rewardredeems_template.ahk"" file in the ""Files"" directory and rename it ""RewardRedeems.ahk""" ; hardcoded value
 	ExitApp
 	}
 #Include Files\Settings.ahk
-If !(SettingsTrayIcon)
-	#NoTrayIcon
-If !(InStr(FileExist(GifsDir), "D") ) {
-	MsgBox, % "Gifs directory missing" ; hardcoded value
-	ExitApp
-	}
-If (SettingsShowGui)
+global SettingsPass := ""
+FileRead, SettingsPass, Files\twitchoauth.txt ; place the oauth key in this file
+global SettingsChannelsVariable := AddChannels()
+global MessagesSinceLastAutomatedMessage := []
+global AutomatedMessageNumber := []
+global IsMessageEven := []
+global LastTriggeredMessageTime := []
+global EmotesArray := []
+Loop, Files, %EmoteDirSlash%
+	EmotesArray.push(A_LoopFileName)
+global EmotesArrayLenght := EmotesArray.Length()
+global GifsArray := []
+Loop, Files, %GifsDirSlash%*
+	GifsArray.push(A_LoopFileName)
+global NumberOfGifs := GifsArray.Length()
+If (SettingsShowGui) {
 	#Include Files\TwitchBotGUI.ahk ; Include the IRC library ; hardcoded value
+	#NoTrayIcon
+	}
 MyBot := new IRCBot() ; Create a new instance of your bot
 MyBot.Connect(SettingsAddress, SettingsPort, SettingsNicks, SettingsUser, SettingsName, SettingsPass) ; Connect to an IRC server
 MyBot.SendJOIN(SettingsChannelsVariable) ; Join the channels
@@ -107,7 +122,7 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 		If ((RegExMatch(Msg, CommandTriggerNeedleRegEx, CommandRegExMatch)) and !(RegExMatch(User, BlackListNeedleRegEx))) {
 			Command := CommandRegExMatch1 ; Command is the first capturing subpattern in the RegEx
 			Param := CommandRegExMatch2 ; The parameter is the second capturing subpattern in the RegEx
-			If (SettingsShowGui)
+			If (SettingsShowGui and SettingsShowLastCommandGui)
 				ShowLastCommandSent(Channel " <" DisplayName ">: " Msg)
 			Else
 				ToolTip, %LastCommandMessage% , 1900, 1040, 1 ; This displays a ToolTip in the form of "<DisplayName> Message someone sent"
@@ -276,7 +291,7 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 						Else if (Command = "OBSSetup") { ; Changes settings in obs by opening a NOOBS CMDR file https://obsproject.com/forum/resources/nuttys-official-obs-commander-noobs-cmdr.1178/
 							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " OBS set to " Param) ; hardcoded value
 							OBSSetup := Param . ".vbs"
-							Run, %Param% , NOOBS CMDR Commands\, Hide, ; hardcoded value
+							Run, %Param% , NOOBS CMDR Scripts\, Hide, ; hardcoded value
 							}
 						Else if (Command = "Sendmessage") { ; Sends "Param", useful to make the bot send commands like /color
 							this.SendPRIVMSG(Channel, Param)
@@ -388,13 +403,11 @@ Print(Params*) {
 			}
 		}
 	}
-
 ToggleSceneOrSource(SceneOrSourceName) {
 	StringLower, SceneOrSourceName, SceneOrSourceName
 	SceneOrSourceName := """" . SceneOrSourceName . """"
 	Run, OBSCommand.exe /password=%SettingsOBSCommandPass% /togglesource=%SceneOrSourceName%, %SettingsOBSCommandPath%, Hide,  ; hardcoded value
 	}
-
 RetrieveSpotifyWindowID() { ; Spotify has multiple windows open but the only one with a title is the one you actually want to pull the title from,
 	WinGet, ListOfSpotifyWindows, List, ahk_exe Spotify.exe ; so just check if the window has a title and return that one
 	Loop %ListOfSpotifyWindows% {
@@ -406,7 +419,6 @@ RetrieveSpotifyWindowID() { ; Spotify has multiple windows open but the only one
 		}
 	TrayTip , "Spotify Window ID", "Spotify Window ID could not be retrieved.", , 16
 	}
-
 ParseEmoteUrl(EmoteUrl) {
 	SplitPath, EmoteUrl, OutFileName, OutDir, OutExtension, OutNameNoExt, OutDrive
 	If (OutDrive = "https://betterttv.com" or OutDrive = "https://cdn.betterttv.net") {
@@ -452,7 +464,6 @@ ParseEmoteUrl(EmoteUrl) {
 		Return ["nothing, link must be from FFZ or BTTV", ""]
 		}
 	}
-
 downloadFile(FileUrlToDownload, dir , NameOfDownloadedFile := "") {
 	whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
 	whr.Open("GET", FileUrlToDownload, true)
@@ -468,7 +479,6 @@ downloadFile(FileUrlToDownload, dir , NameOfDownloadedFile := "") {
 	f.RawWrite(data + 0, size)
 	f.Close()
 	}
-
 SendEmoteToOBS(EmoteFileName) {
 	If (EmoteFileName = "random") {
 		Random, number, 1, %EmotesArrayLenght%
@@ -479,7 +489,6 @@ SendEmoteToOBS(EmoteFileName) {
 	Run, OBSCommand.exe /password=%SettingsOBSCommandPass% /sendjson=%json%, %SettingsOBSCommandPath%, Hide,
 	Return EmoteFileName
 	}
-
 Uptime() {
 	TimeAtCommandExecution := A_TickCount
 	TimeSinceStartupInMilliSeconds := (TimeAtCommandExecution - TimeAtStartup)
@@ -488,21 +497,18 @@ Uptime() {
 	TimeSinceStartupInSeconds := Mod(Floor(TimeSinceStartupInMilliSeconds / 1000), 60)
 	Return TimeSinceStartupInHours . " hours, " . TimeSinceStartupInMinutes . " minutes and " . TimeSinceStartupInSeconds . " seconds"
 	}
-
 SendMessageToEveryChannel(Message) {
 	global MyBot
 	For each, Channel in SettingsChannels {
 		MyBot.SendPRIVMSG(SettingsChannels[A_Index], Message)
 		}
 	}
-
 ShutdownBot(Message := "") {
 	If (Message)
 		SendMessageToEveryChannel(Message)
 	Sleep 500
 	ExitApp
 	}
-
 JoinNewChannel(ChannelName) {
 	global MyBot
 	ChannelName := "#" ChannelName
@@ -511,7 +517,6 @@ JoinNewChannel(ChannelName) {
 		AddChannels(ChannelName)
 		}
 	}
-
 AddChannels(NewChannel := "") {
 	If !(NewChannel) {
 		For Index, Channel in SettingsChannels
@@ -524,14 +529,12 @@ AddChannels(NewChannel := "") {
 		SettingsChannelsVariable .= "," . NewChannel
 		}
 	}
-
 PartChannel(ChannelName) {
 	global MyBot
 	ChannelName := "#" ChannelName
 	If (RegExMatch(ChannelName, "^#[a-zA-Z0-9][\w]{3,24}$")) ; checks if the channelname is valid
 		MyBot.SendPART(ChannelName)
 	}
-
 AnnouncementFunction() {
 	global MyBot
 	For Channel , NumberOfMessages in MessagesSinceLastAutomatedMessage {
@@ -548,7 +551,6 @@ AnnouncementFunction() {
 			}
 		}
 	}
-
 CreateTagsSplit(Tags) {
 	TagsArray := []
 	TempArray := StrSplit(Tags, ";")
@@ -558,7 +560,6 @@ CreateTagsSplit(Tags) {
 		}
 	Return TagsArray
 	}
-
 SendAPyramid(Channel, Emote, Tier := "") {
 	global MyBot
 	If !(Tier)
@@ -584,7 +585,6 @@ SendAPyramid(Channel, Emote, Tier := "") {
 			}
 		}
 	}
-
 PauseBot(PauseOrNot = 1) {
 	If (PauseOrNot) {
 		Paused := 1
@@ -595,7 +595,6 @@ PauseBot(PauseOrNot = 1) {
 		ToolTip, , , , 2
 		}
 	}
-
 SaveCurrentSong() {
 	; global MyBot
 	If !(SongArtistAndTitleFromSpotify = "Nothing") and !(SendDataVar2 = "Nothing")
@@ -604,7 +603,6 @@ SaveCurrentSong() {
 		SongArtistAndTitleFromSpotify := SendDataVar2
 	; MyBot.SendPRIVMSG("#" SettingsNicks, SendDataVar1 SendDataVar2 SendDataVar3 SendDataVar4 SendDataVar5)
 	}
-
 ShowLastCommandSent(MessageText := "") {
 	If (SettingsShowGui) {
 		If (MessageText) {
@@ -617,11 +615,10 @@ ShowLastCommandSent(MessageText := "") {
 			}
 		}
 	}
-
 RandomGif() {
 	Random, number, 1, %NumberOfGifs%
-	GifsDirForward := StrReplace(GifsDir, "\" , "/")
-	GifFullPath := GifsDirForward . GifsArray[number]
+	GifsDirSlashForward := StrReplace(GifsDirSlash, "\" , "/")
+	GifFullPath := GifsDirSlashForward . GifsArray[number]
 	json := """SetSourceSettings={'sourceName': 'gif', 'sourceSettings': {'local_file': '" GifFullPath . "'}}""" ; hardcoded value
 	Run, OBSCommand.exe /password=%SettingsOBSCommandPass% /sendjson=%json%, %SettingsOBSCommandPath%, Hide, ; hardcoded value
 	}
