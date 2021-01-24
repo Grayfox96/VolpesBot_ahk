@@ -9,6 +9,7 @@ Menu, Tray, Icon , Files\Twitch.ico ; hardcoded value
 #Include Files\Socket.ahk ; Include the Socket library ; hardcoded value
 #Include Files\MyRC.ahk ; Include the IRC library ; hardcoded value
 #Include Files\SendData.ahk ; hardcoded value
+global SpotifySongTimerPID := ""
 Run, SpotifySongTimer.ahk, %A_WorkingDir%\Files\, , SpotifySongTimerPID
 SendData(True, False) ;Autorun. False means look for a label name in the first comma separated value
 global SongArtistAndTitleFromSpotify := ""
@@ -39,6 +40,10 @@ If !(FileExist("Files\Settings.ahk")) {
 	}
 If !(FileExist("Files\RewardRedeems.ahk")) {
 	MsgBox, % "edit the ""rewardredeems_template.ahk"" file in the ""Files"" directory and rename it ""RewardRedeems.ahk""" ; hardcoded value
+	ExitApp
+	}
+If !(FileExist("Files\CustomCommands.ini")) {
+	MsgBox, % "rename ""customcommands_template.ini"" to ""CustomCommands.ini""" ; hardcoded value
 	ExitApp
 	}
 #Include Files\Settings.ahk
@@ -303,16 +308,14 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 						Else if (Command = "Gettags") { ; Sends out the tags of the message
 							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " These are the tags of your message: " Tags)
 							}
-						Else if (Command = "Newcommand") { ; Creates a custom command
-							NewCommandNeedleRegEx := "i)^" . CommandTrigger[Channel] . "(?:[newcomad]{10}) (?P<Name>[^ !\$#]*) (?P<Parameter>.*)$"
+						Else if (Command = "Newcommand" or Command = "Addcommand") { ; Creates a custom command
+							NewCommandNeedleRegEx := "i)^" . CommandTrigger[Channel] . "(?:[newcomad]{10}) (?P<Name>[a-z|0-9]*) (?P<Parameter>.*)$"
 							If (RegExMatch(Msg, NewCommandNeedleRegEx, RegExCommand)) {
 								NewCommandNeedleRegEx := "i)" . RegExCommandName . "[,|.]"
 								IniRead, CustomCommandOutput, Files\CustomCommands.ini, %Channel%, % "customcommand" . RegExCommandName, %A_Space%
 								If !(RegExMatch(ListsOfCommands[Channel, "list"], NewCommandNeedleRegEx) or RegExMatch(ListsOfModCommands[Channel, "list"], NewCommandNeedleRegEx) or CustomCommandOutput) { ; Checks if the command exists or not
-									CommandFileSection :=
-									IniRead, CommandFileSection, Files\CustomCommands.ini, %Channel%
-									CommandFileSection := CommandFileSection . "customcommand" . RegExCommandName . "=" . RegExCommandParameter
-									IniWrite, %CommandFileSection%, Files\CustomCommands.ini, %Channel%
+									RegExCommandParameter := RegExReplace(RegExCommandParameter, "[=|\[|\]|;|,]")
+									IniWrite, %RegExCommandParameter%, Files\CustomCommands.ini, %Channel%, customcommand%RegExCommandName%
 									this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " created command """ RegExCommandName """")
 									}
 								Else {
