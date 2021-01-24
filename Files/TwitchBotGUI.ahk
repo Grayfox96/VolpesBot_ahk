@@ -5,8 +5,11 @@ Gui, New , HwndUIMainWindow, VolpesBot
 ; Gui +AlwaysOnTop
 Gui, color, Black
 Gui, font, cBBBBBB
-UIMainWindowWidth := 1200
-UIMainWindowHeight := 800
+If (SettingsCompleteLog)
+	UIMainWindowWidth := A_ScreenWidth -100
+Else
+	UIMainWindowWidth := 400
+UIMainWindowHeight := A_ScreenHeight -200
 UIMainWindowXPos := A_ScreenWidth - UIMainWindowWidth - 40
 UIMainWindowYPos := 40
 Gui, Show, w%UIMainWindowWidth% h%UIMainWindowHeight% x%UIMainWindowXPos% y%UIMainWindowYPos%, VolpesBot
@@ -23,19 +26,13 @@ global UISelectChannels := []
 UISelectChannelsHeight := 20
 For each, Channel in SettingsChannels {
 	If Channel {
-		UISelectChannelsXYOffset := (each = 1) ? "y+0" : "x+0"
+		If (each = 1)
+		UISelectChannelsXYOffset := "y+0"
+		Else 
+			UISelectChannelsXYOffset := "x+0"
 		Gui, Add, Checkbox, HwndUISelectChannels%Channel% %UISelectChannelsXYOffset% vUISelectChannels%Channel% gUISelectChannelsFunction h%UISelectChannelsHeight%, %Channel%
 		}
 	}
-
-; UIRestartButton
-global UIRestartButton := ""
-UIRestartButtonWidth := 200
-UIRestartButtonHeight := UISelectChannelsHeight
-UIRestartButtonLabel := "Restart"
-UIRestartButtonXPos := UIMainWindowWidth - UIRestartButtonWidth
-UIRestartButtonYPos := UIChatLogHeight
-Gui, Add, Button, x%UIRestartButtonXPos% y%UIRestartButtonYPos% HwndUIRestartButton w%UIRestartButtonWidth% h%UIRestartButtonHeight% gUIRestartButtonFunction , %UIRestartButtonLabel%
 
 ; UISendMessageEdit
 Gui, font, c000000
@@ -71,12 +68,31 @@ If (SettingsShowLastCommandGui) {
 	; UILastCommandWindowText
 	global UILastCommandWindowText := ""
 	Gui, Add, Text, HwndUILastCommandWindowText R1 x0 y0, This displays the last command sent to the bot ; R1 means 1 row max
-	; End of Last Command Window ==========================================================================================================================================================================
 	Gui, Show, NA w%A_ScreenWidth% x%UILastCommandWindowXPos% y%UILastCommandWindowYPos%, Last Command
 	}
-; End of UI elements ============================================================================================================================================================================================
-Gui, Submit , NoHide
+; End of Last Command Window ==========================================================================================================================================================================
 
+; Start of Exit Confirm Window ========================================================================================================================================================================
+; UIExitConfirmWindow
+global UIExitConfirmWindow := ""
+global UIExitConfirmWindowWidth := 300
+global UIExitConfirmWindowHeight := 100
+Gui, New , HwndUIExitConfirmWindow, Exit or Restart
+Gui,%UIExitConfirmWindow%: -Caption +ToolWindow  +AlwaysOnTop ; +Owner%UIMainWindow%
+; UIExitConfirmWindowText
+global UIExitConfirmWindowText := ""
+UIExitConfirmWindowTextWidth := 300
+Gui, Add, Text, HwndUIExitConfirmWindowText x0 y10 w%UIExitConfirmWindowTextWidth% R1 Center , Do you want to exit or restart? ; R1 means 1 row max
+; UIExitConfirmWindowButtonExit
+Gui, Add, Button, HwndUIExitConfirmWindowButtonExit x30 y+40 w80 gUIExitConfirmWindowButtonExitFunction, Exit
+; UIExitConfirmWindowButtonRestart
+Gui, Add, Button, HwndUIExitConfirmWindowButtonRestart x+0 w80 gUIExitConfirmWindowButtonRestartFunction, Restart
+; UIExitConfirmWindowButtonCancel
+Gui, Add, Button, HwndUIExitConfirmWindowButtonCancel x+0 w80 Default gUIExitConfirmWindowButtonCancelFunction, Cancel
+; End of Exit Confirm Window ==========================================================================================================================================================================
+
+; End of UI elements ==================================================================================================================================================================================
+Gui, Submit , NoHide
 
 ; Start of functions
 
@@ -99,13 +115,23 @@ UISendMessageEditFunction() {
 		}
 	}
 
-UIRestartButtonFunction() {
-	global MyBot
+UIExitConfirmWindowButtonExitFunction() {
 	DetectHiddenWindows, On
 	SetTitleMatchMode, 2
 	WinKill, SpotifySongTimer.ahk ahk_pid %SpotifySongTimerPID%
-	Sleep 500
+	ExitApp
+	}
+
+UIExitConfirmWindowButtonRestartFunction() {
+	DetectHiddenWindows, On
+	SetTitleMatchMode, 2
+	WinKill, SpotifySongTimer.ahk ahk_pid %SpotifySongTimerPID%
 	Reload
+	}
+
+UIExitConfirmWindowButtonCancelFunction() {
+	Gui, %UIExitConfirmWindow%:Hide
+	;Gui, %UIMainWindow%:Show
 	}
 
 UISendMessageButtonFunction() {

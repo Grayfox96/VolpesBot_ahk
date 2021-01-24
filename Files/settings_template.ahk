@@ -1,5 +1,6 @@
 global SettingsShowGui := 1 ; 1 for yes, 0 for no
 global SettingsShowLastCommandGui := 0 ; 1 for yes, 0 for no
+global SettingsCompleteLog := 0 ; 1 shows complete messages in the log, 0 shows only channel, name and message
 global SettingsAddress := "irc.chat.twitch.tv"
 global SettingsPort := "6667"
 global SettingsNicks := "volpesbot" ; login name of the bot
@@ -52,6 +53,7 @@ global CommandTrigger := {"#channel1": "#" ; prefix to trigger the bot by channe
 	, "#channel2": "#"}
 global EmotesTriggers := {"#channel1": "ayayaJAM|Anone|AYAYA|FeelsStrongMan GuitarTime|D:" ; string of phrases and emotes the bot copies when they are sent in a channel
 	, "#channel2": "FeelsDankMan|DankG|FeelsStrongMan GuitarTime|D:"}
+EmotesTriggers["cooldown"] := 30000 ; Time in milliseconds for the bot to check if he can send another emote
 global MoodEmotes := {"#channel1":  {"happy": "widepeepoHappy", "good": "FeelsDankMan", "weird": "grayfoxWeirdDude", "bad": "KEKWait"} ; associative array with channel names as keys and as values associative arrays with an emote class as key and the emote code as the value
 	, "#channel2": {"happy": "FeelsAmazingMan", "good": "MrDestructoid", "weird": "FUNgineer", "bad": "FeelsBadMan"}}
 global BannedPhrases := {"global": "bigfollows \.com|clck\.ru|hey how r things I found your " ; Characters that need to be escaped with a "\":	+*?^$\.[]{}()|/

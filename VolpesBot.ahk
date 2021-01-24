@@ -67,6 +67,7 @@ MyBot.SendJOIN(SettingsChannelsVariable) ; Join the channels
 ; Sleep, 2000
 ; SendMessageToEveryChannel("FeelsDankMan 👍 Bot Online")
 SetTimer, AnnouncementFunction, %AnnouncementFunctionTimer%
+OnExit("OnExitFunction")
 Return
 ;										
 ;				HOTKEYS					
@@ -75,10 +76,7 @@ SpotifySongChanged:
 	SaveCurrentSong()
 Return
 GuiClose:
-	DetectHiddenWindows, On
-	SetTitleMatchMode, 2
-	WinKill, SpotifySongTimer.ahk ahk_pid %SpotifySongTimerPID%
-	ExitApp
+	Gui, %UIExitConfirmWindow%:Show, w%UIExitConfirmWindowWidth% h%UIExitConfirmWindowHeight% Center, Exit or Restart
 Return
 ;										
 ;				BOT CLASS				
@@ -92,8 +90,9 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 		ModCheck := TagsArray["Mod"] ; hardcoded value
 		BroadcasterCheck := InStr(TagsArray["badges"], "broadcaster") ; hardcoded value
 		BannedPhrasesNeedleRegEx := "i)(" . BannedPhrases[Channel] . "|" . BannedPhrases["global"] . ")"
-		If RegExMatch(Msg, BannedPhrasesNeedleRegEx) {
-			this.SendPRIVMSG(Channel, "/delete " TagsArray["id"])
+		If RegExMatch(Msg, BannedPhrasesNeedleRegEx, Match) {
+			If (Match)
+				this.SendPRIVMSG(Channel, "/delete " TagsArray["id"])
 			}
 				; REWARDS REDEEMS
 		If (TagsArray["custom-reward-id"]) { ; Redeems points rewards
@@ -104,13 +103,15 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 		If RegExMatch(Msg, PingedNeedleRegEx) {
 			this.SendPRIVMSG(Channel, "👋 " MoodEmotes[Channel, "good"] " hi " DisplayName "! I'm a bot.") ; hardcoded value
 			}
-		TimeDifference := TagsArray["tmi-sent-ts"] - LastTriggeredMessageTime[Channel] - 30000
+		TimeDifference := TagsArray["tmi-sent-ts"] - LastTriggeredMessageTime[Channel] - EmotesTriggers["cooldown"]
 		EmotesTriggersNeedleRegEx := "(?:^|\h|\R|\v)(" . EmotesTriggers[Channel] . ")(?:$|\h|\R|\v)"
 		If (((TimeDifference > 0) or !(LastTriggeredMessageTime[Channel])) and (RegExMatch(Msg, EmotesTriggersNeedleRegEx, Emote))) { ; Sends an emote if its in the list ; hardcoded value
-			If (IsMessageEven[Channel] = !IsMessageEven[Channel])
-				Emote .= A_InvisibleCharacter
-			LastTriggeredMessageTime[Channel] := TagsArray["tmi-sent-ts"]
-			this.SendPRIVMSG(Channel, Emote)
+			If (Emote) {
+				If (IsMessageEven[Channel] = !IsMessageEven[Channel])
+					Emote .= A_InvisibleCharacter
+				LastTriggeredMessageTime[Channel] := TagsArray["tmi-sent-ts"]
+				this.SendPRIVMSG(Channel, Emote)
+				}
 			}
 		For each, Needle in MiscTriggers["NeedleRegEx"] {
 			If (RegExMatch(Msg, Needle) and Nick = MiscTriggers["Nick", each])
@@ -621,4 +622,9 @@ RandomGif() {
 	GifFullPath := GifsDirSlashForward . GifsArray[number]
 	json := """SetSourceSettings={'sourceName': 'gif', 'sourceSettings': {'local_file': '" GifFullPath . "'}}""" ; hardcoded value
 	Run, OBSCommand.exe /password=%SettingsOBSCommandPass% /sendjson=%json%, %SettingsOBSCommandPath%, Hide, ; hardcoded value
+	}
+OnExitFunction() {
+	DetectHiddenWindows, On
+	SetTitleMatchMode, 2
+	WinKill, SpotifySongTimer.ahk ahk_pid %SpotifySongTimerPID%
 	}
