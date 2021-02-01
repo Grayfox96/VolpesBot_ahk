@@ -9,6 +9,7 @@ Menu, Tray, Icon , Files\Twitch.ico ; hardcoded value
 #Include Files\Socket.ahk ; Include the Socket library ; hardcoded value
 #Include Files\MyRC.ahk ; Include the IRC library ; hardcoded value
 #Include Files\SendData.ahk ; hardcoded value
+#Include Files\SymbolToFFXDec.ahk ; hardcoded value
 global SpotifySongTimerPID := ""
 Run, SpotifySongTimer.ahk, %A_WorkingDir%\Files\, , SpotifySongTimerPID
 SendData(True, False) ;Autorun. False means look for a label name in the first comma separated value
@@ -66,6 +67,8 @@ If (SettingsShowGui) {
 	#Include Files\TwitchBotGUI.ahk ; Include the IRC library ; hardcoded value
 	#NoTrayIcon
 	}
+global LastProgram := ""
+global ProcessHandle := ""
 MyBot := new IRCBot() ; Create a new instance of your bot
 MyBot.Connect(SettingsAddress, SettingsPort, SettingsNicks, SettingsUser, SettingsName, SettingsPass) ; Connect to an IRC server
 MyBot.SendJOIN(SettingsChannelsVariable) ; Join the channels
@@ -94,7 +97,7 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 		DisplayName := TagsArray["display-name"] ; hardcoded value
 		ModCheck := TagsArray["Mod"] ; hardcoded value
 		BroadcasterCheck := InStr(TagsArray["badges"], "broadcaster") ; hardcoded value
-		BannedPhrasesNeedleRegEx := "i)(" . BannedPhrases[Channel] . "|" . BannedPhrases["global"] . ")"
+		BannedPhrasesNeedleRegEx := "(" . BannedPhrases[Channel] . "|" . BannedPhrases["global"] . ")"
 		If RegExMatch(Msg, BannedPhrasesNeedleRegEx, Match) {
 			If (Match)
 				this.SendPRIVMSG(Channel, "/delete " TagsArray["id"])
@@ -353,6 +356,9 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 								this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " 👍 reloading the script")
 							Sleep 500
 							Reload
+							}
+						Else if (Command = "Tidusname") { ; changes tidus' name in ffx
+							WriteMemory(SymbolToHex(Param))
 							}
 						}
 					Else if (RegExMatch(ListsOfModCommands[Channel, "list"], CommandCheckNeedleRegEx)) { ; Warns the user they cant use a mod command
@@ -630,4 +636,47 @@ OnExitFunction() {
 	DetectHiddenWindows, On
 	SetTitleMatchMode, 2
 	WinKill, SpotifySongTimer.ahk ahk_pid %SpotifySongTimerPID%
+	}
+ReadMemory(MemoryAddress=0x01BF2DDC, Program="FINAL FANTASY X", Bytes=8) {
+	VarSetCapacity(MemoryValue, Bytes, 0)
+	If !(Program = LastProgram) {
+		LastProgram := Program
+		WinGet, CurrentProcessID, pid, %Program%
+		If ProcessHandle
+			closed := DllCall("CloseHandle","UInt",ProcessHandle)
+		If CurrentProcessID
+			ProcessHandle := DllCall("OpenProcess", "Int", 0x38, "Int", 0, "UInt", CurrentProcessID)
+		}
+	If (ProcessHandle) and DllCall("ReadProcessMemory", "UInt", ProcessHandle, "UInt", MemoryAddress, "Str", MemoryValue, "UInt", Bytes, "UInt *", 0) {
+		Result := NumGet(MemoryValue , 0, "Int64")
+		Result := Format("{:p}", Result)
+		Return Result
+		}
+	Return !ProcessHandle ? "Handle Closed:" closed : "Fail"
+	}
+WriteMemory(MemoryValue, MemoryAddress=0x01BF2DDC, Program="FINAL FANTASY X", Bytes=8) { ; defaults are the address of tidus' name in FFX and the name of the process
+	If !(Program = LastProgram) {
+		LastProgram := Program
+		WinGet, CurrentProcessID, pid, %Program%
+		If ProcessHandle
+			closed := DllCall("CloseHandle","UInt",ProcessHandle)
+		If CurrentProcessID
+			ProcessHandle := DllCall("OpenProcess", "Int", 0x38, "Int", 0, "UInt", CurrentProcessID)
+		}
+	If (ProcessHandle)  {
+		ErrorCheck := DllCall("WriteProcessMemory", "UInt", ProcessHandle, "UInt", 0x01BF2DDC, "UInt64*", MemoryValue, "UInt", 8, "Uint*", 0)
+		}
+	Return ProcessHandle ? ErrorCheck : 0
+	}
+SymbolToHex(SymbolString) {
+	DecNumber := 0
+	SymbolString := SubStr(SymbolString, 1 , 7)
+	SymbolArray := StrSplit(SymbolString)
+	For each, Symbol in SymbolArray {
+		if ((Asc(Symbol) > 64) and (Asc(Symbol) < 91))
+			DecNumber += SymbolToFFXDec[Symbol "_u"] * (256**(A_Index -1))
+		Else
+			DecNumber += SymbolToFFXDec[Symbol] * (256**(A_Index -1))
+	}
+	Return DecNumber
 	}
