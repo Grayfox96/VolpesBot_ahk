@@ -67,8 +67,9 @@ If (SettingsShowGui) {
 	#Include Files\TwitchBotGUI.ahk ; Include the IRC library ; hardcoded value
 	#NoTrayIcon
 	}
-global LastProgram := ""
 global ProcessHandle := ""
+global ProcessBaseAddress := ""
+global LastProcessBaseAddress := ""
 MyBot := new IRCBot() ; Create a new instance of your bot
 MyBot.Connect(SettingsAddress, SettingsPort, SettingsNicks, SettingsUser, SettingsName, SettingsPass) ; Connect to an IRC server
 MyBot.SendJOIN(SettingsChannelsVariable) ; Join the channels
@@ -357,8 +358,21 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 							Sleep 500
 							Reload
 							}
-						Else if (Command = "Tidusname") { ; changes tidus' name in ffx
-							WriteMemory(SymbolToHex(Param))
+						Else if (Command = "Ffxname") { ; changes a name in ffx
+							ParamSplit := StrSplit(Param, A_Space)
+							If RegExMatch(ParamSplit[1], "i)^tidus$") {
+								WriteMemory(SymbolToHex(SubStr(ParamSplit[2], 1 , 8)), 0xD32DDC, "FINAL FANTASY X", 8)
+								WriteMemory(SymbolToHex(SubStr(ParamSplit[2], 9 , 8)), 0xD32DDC + 0x8, "FINAL FANTASY X", 8)
+								WriteMemory(SymbolToHex(SubStr(ParamSplit[2], 17 , 3)), 0xD32DDC + 0x10, "FINAL FANTASY X", 4)
+								}
+							Else if RegExMatch(ParamSplit[1], "i)^bahamut$") {
+								WriteMemory(SymbolToHex(SubStr(ParamSplit[2], 1 , 8)), 0xD32ECC, "FINAL FANTASY X", 8)
+								WriteMemory(SymbolToHex(SubStr(ParamSplit[2], 9 , 8)), 0xD32ECC + 0x8, "FINAL FANTASY X", 8)
+								WriteMemory(SymbolToHex(SubStr(ParamSplit[2], 17 , 3)), 0xD32ECC + 0x10, "FINAL FANTASY X", 4)
+								}
+							}
+						Else if (Command = "Ffxtest") { ; temp
+							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " " ReadMemory(ReadMemory(0xD34460, "FINAL FANTASY X", 4) + 0x5D0 - ProcessBaseAddress, "FINAL FANTASY X", 4))
 							}
 						}
 					Else if (RegExMatch(ListsOfModCommands[Channel, "list"], CommandCheckNeedleRegEx)) { ; Warns the user they cant use a mod command
@@ -637,46 +651,52 @@ OnExitFunction() {
 	SetTitleMatchMode, 2
 	WinKill, SpotifySongTimer.ahk ahk_pid %SpotifySongTimerPID%
 	}
-ReadMemory(MemoryAddress=0x01BF2DDC, Program="FINAL FANTASY X", Bytes=8) {
-	VarSetCapacity(MemoryValue, Bytes, 0)
-	If !(Program = LastProgram) {
-		LastProgram := Program
+ReadMemory(MemoryAddress=0xD32DDC, Program="FINAL FANTASY X", Bytes=8) { ; defaults are the address of tidus' name in FFX and the name of the process
+	WinGet, CurrentWindowID, ID , %Program%
+	If CurrentWindowID
+			ProcessBaseAddress := DllCall("GetWindowLongPtr", "Ptr", CurrentWindowID, "Int", -6, "Int64")
+	If !(ProcessBaseAddress = LastProcessBaseAddress) {
+		LastProcessBaseAddress := ProcessBaseAddress
 		WinGet, CurrentProcessID, pid, %Program%
 		If ProcessHandle
 			closed := DllCall("CloseHandle","UInt",ProcessHandle)
 		If CurrentProcessID
 			ProcessHandle := DllCall("OpenProcess", "Int", 0x38, "Int", 0, "UInt", CurrentProcessID)
 		}
+	MemoryAddress += ProcessBaseAddress
+	VarSetCapacity(MemoryValue, Bytes, 0)
 	If (ProcessHandle) and DllCall("ReadProcessMemory", "UInt", ProcessHandle, "UInt", MemoryAddress, "Str", MemoryValue, "UInt", Bytes, "UInt *", 0) {
 		Result := NumGet(MemoryValue , 0, "Int64")
-		Result := Format("{:p}", Result)
 		Return Result
 		}
 	Return !ProcessHandle ? "Handle Closed:" closed : "Fail"
 	}
-WriteMemory(MemoryValue, MemoryAddress=0x01BF2DDC, Program="FINAL FANTASY X", Bytes=8) { ; defaults are the address of tidus' name in FFX and the name of the process
-	If !(Program = LastProgram) {
-		LastProgram := Program
+WriteMemory(MemoryValue, MemoryAddress=0xD32DDC, Program="FINAL FANTASY X", Bytes=8) { ; defaults are the address of tidus' name in FFX and the name of the process
+	WinGet, CurrentWindowID, ID , %Program%
+	If CurrentWindowID
+			ProcessBaseAddress := DllCall("GetWindowLongPtr", "Ptr", CurrentWindowID, "Int", -6, "Int64")
+	If !(ProcessBaseAddress = LastProcessBaseAddress) {
+		LastProcessBaseAddress := ProcessBaseAddress
 		WinGet, CurrentProcessID, pid, %Program%
 		If ProcessHandle
 			closed := DllCall("CloseHandle","UInt",ProcessHandle)
 		If CurrentProcessID
 			ProcessHandle := DllCall("OpenProcess", "Int", 0x38, "Int", 0, "UInt", CurrentProcessID)
 		}
-	If (ProcessHandle)  {
-		ErrorCheck := DllCall("WriteProcessMemory", "UInt", ProcessHandle, "UInt", 0x01BF2DDC, "UInt64*", MemoryValue, "UInt", 8, "Uint*", 0)
-		}
+	MemoryAddress += ProcessBaseAddress
+	If (ProcessHandle and ProcessBaseAddress)
+		ErrorCheck := DllCall("WriteProcessMemory", "UInt", ProcessHandle, "UInt", MemoryAddress, "UInt64*", MemoryValue, "UInt", Bytes, "Uint*", 0)
 	Return ProcessHandle ? ErrorCheck : 0
 	}
 SymbolToHex(SymbolString) {
 	DecNumber := 0
-	SymbolString := SubStr(SymbolString, 1 , 7)
+	SymbolString := SubStr(SymbolString, 1 , 8)
 	SymbolArray := StrSplit(SymbolString)
 	For each, Symbol in SymbolArray {
 		if ((Asc(Symbol) > 64) and (Asc(Symbol) < 91))
 			DecNumber += SymbolToFFXDec[Symbol "_u"] * (256**(A_Index -1))
 		Else
 			DecNumber += SymbolToFFXDec[Symbol] * (256**(A_Index -1))
-	}
+		}
 	Return DecNumber
 	}
