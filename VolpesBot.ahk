@@ -359,16 +359,25 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 							Reload
 							}
 						Else if (Command = "Ffxname") { ; changes a name in ffx
-							ParamSplit := StrSplit(Param, A_Space)
-							If RegExMatch(ParamSplit[1], "i)^tidus$") {
-								WriteMemory(SymbolToHex(SubStr(ParamSplit[2], 1 , 8)), 0xD32DDC, "FINAL FANTASY X", 8)
-								WriteMemory(SymbolToHex(SubStr(ParamSplit[2], 9 , 8)), 0xD32DDC + 0x8, "FINAL FANTASY X", 8)
-								WriteMemory(SymbolToHex(SubStr(ParamSplit[2], 17 , 3)), 0xD32DDC + 0x10, "FINAL FANTASY X", 4)
+							RegExMatch(Param, "^(?<Character>\S*) (?<NewName>.*)$", FFXName)
+							If RegExMatch(FFXNameCharacter, "i)^tidus$") {
+								If !(WriteMemory(SymbolToHex(SubStr(FFXNameNewName, 1 , 8)), 0xD32DDC, "FINAL FANTASY X", 8))
+									this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " something went wrong")
+								Else {
+									WriteMemory(SymbolToHex(SubStr(FFXNameNewName, 9 , 8)), 0xD32DDC + 0x8, "FINAL FANTASY X", 8)
+									WriteMemory(SymbolToHex(SubStr(FFXNameNewName, 17 , 3)), 0xD32DDC + 0x10, "FINAL FANTASY X", 4)
+									}
 								}
-							Else if RegExMatch(ParamSplit[1], "i)^bahamut$") {
-								WriteMemory(SymbolToHex(SubStr(ParamSplit[2], 1 , 8)), 0xD32ECC, "FINAL FANTASY X", 8)
-								WriteMemory(SymbolToHex(SubStr(ParamSplit[2], 9 , 8)), 0xD32ECC + 0x8, "FINAL FANTASY X", 8)
-								WriteMemory(SymbolToHex(SubStr(ParamSplit[2], 17 , 3)), 0xD32ECC + 0x10, "FINAL FANTASY X", 4)
+							Else if RegExMatch(FFXNameCharacter, "i)^bahamut$") {
+								FFXNameCharacter := SubStr(FFXNameCharacter, 1 , 300) ; keep it at 300 characters just to be conservative, game doesnt like really long names
+								If !(WriteMemory(SymbolToHex(SubStr(FFXNameNewName, 1 , 8)), 0xD32ECC, "FINAL FANTASY X", 8))
+									this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " something went wrong")
+								Else {
+									Loop, % (StrLen(FFXNameNewName) / 8)
+										{
+										WriteMemory(SymbolToHex(SubStr(FFXNameNewName, (A_Index * 8) + 1 , 8)), 0xD32ECC + (A_Index * 8), "FINAL FANTASY X", 8)
+										}
+									}
 								}
 							}
 						Else if (Command = "Ffxtest") { ; temp
