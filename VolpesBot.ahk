@@ -5,7 +5,8 @@ SetWorkingDir %A_ScriptDir% ; Ensures a consistent starting directory.
 #SingleInstance Force
 #Persistent
 CoordMode, ToolTip , Screen
-Menu, Tray, Icon , Files\Twitch.ico ; hardcoded value
+FileEncoding, UTF-8
+Menu, Tray, Icon , Files\VolpesBotTwitch.ico ; hardcoded value
 #Include Files\Socket.ahk ; Include the Socket library ; hardcoded value
 #Include Files\MyRC.ahk ; Include the IRC library ; hardcoded value
 #Include Files\SendData.ahk ; hardcoded value
@@ -307,7 +308,7 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 							this.SendPRIVMSG(Channel, Param)
 							}
 						Else if (Command = "Hachudeer") { ; widepeepoHappy https://www.twitch.tv/hachubby
-							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "happy"] " ⣿⣿⣿⣿⣿⣿⣿⢿⣿⠏⠉⢹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠻⣿⣿⣿⣿ ⣿⣿⣿⣿⣿⣿⠄⠄⠈⠄⠄⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠄⠄⣿⣿⣿⣿ ⣿⣿⣿⣿⣿⣿⣿⣦⠄⠄⠄⠿⠿⠛⠛⠛⠛⠿⠿⣿⣿⣿⣿⡟⠄⠄⠘⠛⢻⣿ ⣿⣿⣿⣿⣿⣿⣿⡿⠃⣀⣤⣴⣶⣶⣶⣶⣶⣦⣤⣀⠉⠛⠋⠄⠄⢀⣤⣤⣾⣿ ⣿⣿⠿⠛⠋⠉⢀⣴⡏⠄⢀⠿⠟⠛⠛⠿⢿⣿⡟⠛⠛⣦⡀⠄⢰⣿⣿⣿⣿⣿ ⣿⡇⠄⢶⠟⠠⠿⠛⠛⠉⠁⠄⠸⠿⠗⠄⠄⠙⠳⢤⣤⣿⣿⡄⠄⠙⢿⣿⣿⣿ ⣿⣧⡀⠄⠄⠄⢀⣠⣴⣶⠆⣀⣀⠄⠄⢀⣀⠠⣄⠄⠙⢿⣿⣿⠄⠄⠄⠈⠻⣿ ⣿⣿⣿⡇⣠⣾⠿⢛⣉⣴⣾⣿⣿⣿⣿⣿⣿⣷⣌⢿⣦⡀⠙⠁⠄⠄⠄⠄⠄⣿ ⣿⣿⡟⡰⠋⠄⣾⡇⠄⣻⣿⣿⣿⣿⣿⠏⠉⣿⣿⡌⣿⣿⡀⠄⠄⠄⢀⣀⣼⣿ ⣿⣿⢡⠃⠠⢠⣿⣿⣾⣿⣿⣿⣿⣿⣿⣷⣴⣿⣿⣷⢈⣭⡅⠄⠄⣸⣿⣿⣿⣿ ⣿⣿⡈⣆⠄⣾⣿⣿⣿⣷⣝⣛⣫⣾⣿⣿⣿⣿⣿⣿⣿⣿⠇⠄⠄⣿⣿⣿⣿⣿ ⣿⣿⣧⠹⣧⠈⢿⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠁⢀⣴⡄⢿⣿⣿⣿⣿ ⣿⣿⣿⡇⣿⡇⠄⠄⠄⠉⠻⠛⠟⠋⠉⠄⠄⠙⠋⠁⠄⢠⣿⣿⡇⢸⣿⣿⣿⣿ ⣿⡿⢋⣴⡿⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠸⣿⡿⠃⢸⣿⣿⣿⣿ ⣿⣷⣿⣿⣾⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣾⣶⣶⣿⣿⣿⣿⣿ ") ; hardcoded value
+							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "bad"] " ⣿⣿⣿⣿⣿⣿⣿⢿⣿⠏⠉⢹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠻⣿⣿⣿⣿ ⣿⣿⣿⣿⣿⣿⠄⠄⠈⠄⠄⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠄⠄⣿⣿⣿⣿ ⣿⣿⣿⣿⣿⣿⣿⣦⠄⠄⠄⠿⠿⠛⠛⠛⠛⠿⠿⣿⣿⣿⣿⡟⠄⠄⠘⠛⢻⣿ ⣿⣿⣿⣿⣿⣿⣿⡿⠃⣀⣤⣴⣶⣶⣶⣶⣶⣦⣤⣀⠉⠛⠋⠄⠄⢀⣤⣤⣾⣿ ⣿⣿⠿⠛⠋⠉⢀⣴⡏⠄⢀⠿⠟⠛⠛⠿⢿⣿⡟⠛⠛⣦⡀⠄⢰⣿⣿⣿⣿⣿ ⣿⡇⠄⢶⠟⠠⠿⠛⠛⠉⠁⠄⠸⠿⠗⠄⠄⠙⠳⢤⣤⣿⣿⡄⠄⠙⢿⣿⣿⣿ ⣿⣧⡀⠄⠄⠄⢀⣠⣴⣶⠆⣀⣀⠄⠄⢀⣀⠠⣄⠄⠙⢿⣿⣿⠄⠄⠄⠈⠻⣿ ⣿⣿⣿⡇⣠⣾⠿⢛⣉⣴⣾⣿⣿⣿⣿⣿⣿⣷⣌⢿⣦⡀⠙⠁⠄⠄⠄⠄⠄⣿ ⣿⣿⡟⡰⠋⠄⣾⡇⠄⣻⣿⣿⣿⣿⣿⠏⠉⣿⣿⡌⣿⣿⡀⠄⠄⠄⢀⣀⣼⣿ ⣿⣿⢡⠃⠠⢠⣿⣿⣾⣿⣿⣿⣿⣿⣿⣷⣴⣿⣿⣷⢈⣭⡅⠄⠄⣸⣿⣿⣿⣿ ⣿⣿⡈⣆⠄⣾⣿⣿⣿⣷⣝⣛⣫⣾⣿⣿⣿⣿⣿⣿⣿⣿⠇⠄⠄⣿⣿⣿⣿⣿ ⣿⣿⣧⠹⣧⠈⢿⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠁⢀⣴⡄⢿⣿⣿⣿⣿ ⣿⣿⣿⡇⣿⡇⠄⠄⠄⠉⠻⠛⠟⠋⠉⠄⠄⠙⠋⠁⠄⢠⣿⣿⡇⢸⣿⣿⣿⣿ ⣿⡿⢋⣴⡿⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠸⣿⡿⠃⢸⣿⣿⣿⣿ ⣿⣷⣿⣿⣾⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣾⣶⣶⣿⣿⣿⣿⣿ ") ; hardcoded value
 							}
 						Else if (Command = "Gettags") { ; Sends out the tags of the message
 							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " These are the tags of your message: " Tags)
@@ -331,7 +332,7 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 								}
 							}
 						Else if (Command = "Deletecommand") { ; Deletes a custom command
-							DeleteCommandNeedleRegEx := "^" . CommandTrigger[Channel] . "i)(?:[deltcoman]{13}) (?P<Name>[^ !\$#]*)"
+							DeleteCommandNeedleRegEx := "i)^" . CommandTrigger[Channel] . "(?:[deltcoman]{13}) (?P<Name>[a-z|0-9]*)"
 							If (RegExMatch(Msg, DeleteCommandNeedleRegEx, RegExCommand)) {
 								NewCommandNeedleRegEx := "i)" . RegExCommandName . "[,|.]"
 								If !(RegExMatch(ListsOfCommands[Channel, "list"], NewCommandNeedleRegEx) or RegExMatch(ListsOfModCommands[Channel, "list"], NewCommandNeedleRegEx)) {
