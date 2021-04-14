@@ -7,3 +7,6 @@ Files/Settings.ahk
 RewardRedeems.ahk
 Gifs/
 Files/CustomCommands.ini
+twitchclientsecret.txt
+twitchappoauthtoken.txt
+Files/BanList.ahk

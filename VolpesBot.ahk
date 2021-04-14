@@ -7,10 +7,18 @@ SetWorkingDir %A_ScriptDir% ; Ensures a consistent starting directory.
 CoordMode, ToolTip , Screen
 FileEncoding, UTF-8
 Menu, Tray, Icon , Files\VolpesBotTwitch.ico ; hardcoded value
-#Include Files\Socket.ahk ; Include the Socket library ; hardcoded value
-#Include Files\MyRC.ahk ; Include the IRC library ; hardcoded value
-#Include Files\SendData.ahk ; hardcoded value
-#Include Files\SymbolToFFXDec.ahk ; hardcoded value
+; =================================================================================================
+#Include Files\Socket.ahk ; Include the Socket library
+#Include Files\MyRC.ahk ; Include the IRC library
+#Include Files\SendData.ahk
+#Include Files\SymbolToFFXDec.ahk
+#Include Files\JSON.ahk							; library to get transform a json string into a ahk array and viceversa
+												; JSON.Load(JSON_String) creates an array from a string
+												; JSON.Dump(JSON_Array) creates a string from an array
+#Include Files\PrintArray.ahk					; library to either put a nicely formatted string into a variable or display it directly
+												; PrintArray(GetUpdatesResponseArray) gives you a string from an array that you can display in a custom UI
+												; PrintArray(GetUpdatesResponseArray, 1) creates an ui directly from that string
+; =================================================================================================
 global SpotifySongTimerPID := ""
 Run, SpotifySongTimer.ahk, %A_WorkingDir%\Files\, , SpotifySongTimerPID
 SendData(True, False) ;Autorun. False means look for a label name in the first comma separated value
@@ -64,13 +72,24 @@ global GifsArray := []
 Loop, Files, %GifsDirSlash%*
 	GifsArray.push(A_LoopFileName)
 global NumberOfGifs := GifsArray.Length()
-If (SettingsShowGui) {
+; =================================================================================================
+; TwitchBotGUI.ahk setup
+; =================================================================================================
+If (SettingsShowGui)
 	#Include Files\TwitchBotGUI.ahk ; Include the IRC library ; hardcoded value
-	#NoTrayIcon
-	}
+; =================================================================================================
 global ProcessHandle := ""
 global ProcessBaseAddress := ""
 global LastProcessBaseAddress := ""
+; =================================================================================================
+; TwitchAPI.ahk setup
+; =================================================================================================
+#Include Files\TwitchAPI.ahk
+; =================================================================================================
+; TelegramRelayMessages.ahk setup
+; =================================================================================================
+#Include Files\TelegramRelay.ahk
+; =================================================================================================
 MyBot := new IRCBot() ; Create a new instance of your bot
 MyBot.Connect(SettingsAddress, SettingsPort, SettingsNicks, SettingsUser, SettingsName, SettingsPass) ; Connect to an IRC server
 MyBot.SendJOIN(SettingsChannelsVariable) ; Join the channels
@@ -78,6 +97,7 @@ MyBot.SendJOIN(SettingsChannelsVariable) ; Join the channels
 ; SendMessageToEveryChannel("FeelsDankMan 👍 Bot Online")
 SetTimer, AnnouncementFunction, %AnnouncementFunctionTimer%
 OnExit("OnExitFunction")
+
 Return
 ;										
 ;				HOTKEYS					
@@ -101,8 +121,12 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 		BroadcasterCheck := InStr(TagsArray["badges"], "broadcaster") ; hardcoded value
 		BannedPhrasesNeedleRegEx := "(" . BannedPhrases[Channel] . "|" . BannedPhrases["global"] . ")"
 		If RegExMatch(Msg, BannedPhrasesNeedleRegEx, Match) {
-			If (Match)
+			If (Match) {
 				this.SendPRIVMSG(Channel, "/delete " TagsArray["id"])
+				SendTelegramMessage(TelegramChatID, Channel " " FormatTimeFromUNIX(TagsArray["tmi-sent-ts"]) " " DisplayName ": <Message matched a blacklisted word>")
+				}
+			Else
+				SendTelegramMessage(TelegramChatID, Channel " " FormatTimeFromUNIX(TagsArray["tmi-sent-ts"]) " " DisplayName ": " Msg)
 			}
 				; REWARDS REDEEMS
 		If (TagsArray["custom-reward-id"]) { ; Redeems points rewards
@@ -136,7 +160,7 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 			If (SettingsShowGui and SettingsShowLastCommandGui)
 				ShowLastCommandSent(Channel " <" DisplayName ">: " Msg)
 			Else
-				ToolTip, %LastCommandMessage% , 1900, 1040, 1 ; This displays a ToolTip in the form of "<DisplayName> Message someone sent"
+				ToolTip, %LastCommandMessage% , 1, 1, 1 ; This displays a ToolTip in the form of "<DisplayName> Message someone sent" ; hardcoded value
 			If (Paused) { ; Actions if the bot is paused
 				If (Command = "UnpauseBot" and Nick = SettingsBotOwner) { ; Unpauses the bot
 					this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " 👍 turning commands on")
@@ -256,7 +280,11 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 					Else if (Command = "Command" or Command = "Commands") { ; Sends a list of commands
 						this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " 📣 List of commands: " ListsOfCommands[Channel, "list"] " Mod only commands: " ListsOfModCommands[Channel, "list"])
 						}
-				; MOD COMMANDS
+					Else if (Command = "Game") {
+						TwitchInfoArray := JSON.Load(TwitchGetChannelInformation(["80621369"]))
+						this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " " TwitchInfoArray["data", 1, "game_name"])
+						}
+					; MOD COMMANDS
 					Else if ((Nick = SettingsBotOwner) or ModCheck or BroadcasterCheck) { ; Checks if the bot owner or a mod or the broadcaster are requesting the command
 						If (Command = "PauseBot") { ; Pauses the bot
 							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " 👍 turning commands off")
@@ -381,8 +409,35 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 									}
 								}
 							}
-						Else if (Command = "Ffxtest") { ; temp
-							this.SendPRIVMSG(Channel, MoodEmotes[Channel, "good"] " " ReadMemory(ReadMemory(0xD34460, "FINAL FANTASY X", 4) + 0x5D0 - ProcessBaseAddress, "FINAL FANTASY X", 4))
+						Else if (Command = "Banlist") { ; bans X users from a list starting at Y ; socket closes with error 10053 every time more than 40 bans or so are issued
+							If (Nick = SettingsBotOwner) {
+								; #Include Files\BanList.ahk ; hardcoded value
+								; this.SendPRIVMSG(Channel, "Banning users from list " """" Param """")
+								; For each, BannedUser in BanLists[Param] {
+								; 	Print(BannedUser)
+								; 	this.SendPRIVMSG(Channel, "/ban " BannedUser)
+								; 	}
+								ParamArray := StrSplit(Param, A_Space)
+								BanWaveStartingPosition := ParamArray[1]
+								NumberOfUsersToBan := ParamArray[2]
+								FileRead, BanList, Files\tempbanlist.txt
+								BanListArray := StrSplit(BanList, A_Enter, " `t")
+								Loop, %NumberOfUsersToBan%
+									{
+									BannedUserIndex := A_Index + BanWaveStartingPosition
+									BannedUser := BanListArray[BannedUserIndex]
+									Print(BannedUser)
+									this.SendPRIVMSG(Channel, "/ban " BannedUser)
+									}
+								; For each, BannedUser in BanListArray {
+								; 	Print(BannedUser)
+								; 	this.SendPRIVMSG(Channel, "/ban " BannedUser)
+								; 	}
+								; Sleep 1000
+								; Reload
+								}
+							Else
+								this.SendPRIVMSG(Channel, "monkaS pls dont use this command its scary tell " SettingsBotOwner " to use it")
 							}
 						}
 					Else if (RegExMatch(ListsOfModCommands[Channel, "list"], CommandCheckNeedleRegEx)) { ; Warns the user they cant use a mod command
@@ -414,7 +469,7 @@ class IRCBot extends IRC { ; Create a bot that extends the IRC library
 			}
 		}
 	onNOTICE(Tags,Nick,User,Host,Cmd,Params,Msg,Data){
-		; this.SendPRIVMSG("#" SettingsNicks, "Data recieved from a NOTICE command:" Data)
+		this.SendPRIVMSG("#" SettingsNicks, "Data recieved from a NOTICE command:" Data)
 		}
 	Log(Data) { ; This function gets called for every raw line from the server 
 		Print(Data) ; Print the raw data received from the server
@@ -428,9 +483,9 @@ Print(Params*) {
 	; StdOut := FileOpen("*", "w") ; Open the standard output
 	for each, Param in Params { ; Iterate over function parameters
 		; StdOut.Write(Param "`n") ; Append the parameter to the standard output
-		If (SettingsShowGui) {
+		If (SettingsShowGui and Param) {
 			Gui, Submit , NoHide
-			UIChatLogVariable := UIChatLogVariable . Param . "`n`n"
+			UIChatLogVariable := UIChatLogVariable . Param . "`n"
 			UIChatLogVariable := SubStr(UIChatLogVariable, -20000)
 			GuiControl,, %UIChatLog% , %UIChatLogVariable%
 			SendMessage, 0x0115, 7, 0, , ahk_id %UIChatLog% ; WM_VSCROLL SB_RIGHT
@@ -499,6 +554,7 @@ ParseEmoteUrl(EmoteUrl) {
 		}
 	}
 downloadFile(FileUrlToDownload, dir , NameOfDownloadedFile := "") {
+	FileEncoding ; encoding non-text files as utf-8 breaks them
 	whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
 	whr.Open("GET", FileUrlToDownload, true)
 	whr.Send()
@@ -512,6 +568,7 @@ downloadFile(FileUrlToDownload, dir , NameOfDownloadedFile := "") {
 	f := FileOpen(dir (NameOfDownloadedFile ? NameOfDownloadedFile : urlFileName), "w")
 	f.RawWrite(data + 0, size)
 	f.Close()
+	FileEncoding, UTF-8
 	}
 SendEmoteToOBS(EmoteFileName) {
 	If (EmoteFileName = "random") {
@@ -709,4 +766,35 @@ SymbolToHex(SymbolString) {
 			DecNumber += SymbolToFFXDec[Symbol] * (256**(A_Index -1))
 		}
 	Return DecNumber
+	}
+
+HTTPRequest(URL, Body := "", HTTPMethod := "GET", ContentType := "application/json") {
+	Try
+		{
+		HTTP := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+		HTTP.Open(HTTPMethod, URL, false)
+		HTTP.SetRequestHeader("Content-Type", ContentType)
+		HTTP.Send(Body)
+		}
+	Catch HTTPError
+		{
+		MsgBox, 16, , % "Exception thrown!`n`nwhat: " HTTPError.what "`nfile: " HTTPError.file . "`nline: " HTTPError.line "`nmessage: " HTTPError.message "`nextra: " HTTPError.extra
+		}
+	Return HTTP.responseText
+	}
+
+FormatTimeFromUNIX(TimeUNIX){
+	FormatTime, TimeUNIXMidnight, , yyyyMMdd'000000'
+	TimeUNIXMidnight -= 19700101020000, s ; https://www.autohotkey.com/docs/commands/EnvSub.htm ; adjusting for timezone, +2 in this case
+	TimeUNIXMidnight := TimeUNIXMidnight * 1000
+	TimeDayMS := TimeUNIX - TimeUNIXMidnight
+	TimeH := Floor(TimeDayMS / 3600000)
+	TimeM := Mod(Floor(TimeDayMS / 60000), 60)
+	TimeS := Mod(Floor(TimeDayMS / 1000), 60)
+	if (TimeM < 10)
+		TimeM := "0" . TimeM
+	if (TimeS < 10)
+		TimeS := "0" . TimeS
+	FormattedTime := TimeH ":" TimeM ":" TimeS
+	Return FormattedTime
 	}
