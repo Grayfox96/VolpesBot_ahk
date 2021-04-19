@@ -42,7 +42,7 @@
 		this.Parent.onDisconnect(this)
 		}
 	_OnRecv(Data) {
-		static RegEx := "^@?(?P<Tags>([^\s=;]+=[^\s=;]*[; ])*)(?:\:(?P<Nick>[^\!\@ ]+)(?:\!(?P<User>[^\@ ]+))?(?:\@(?P<Host>[^ ]+))? )?(?P<Cmd>[^ ]+)(?: (?P<Params>[^\:][^ ]*(?: [^\:][^ ]*)*))?(?: \:(?P<Msg>.*))?$"
+		static RegEx := "^@?(?P<Tags>(?:[^\s=;]+=[^\s=;]*[; ])*)(?:\:(?P<Nick>[^\!\@ ]+)(?:\!(?P<User>[^\@ ]+))?(?:\@(?P<Host>[^ ]+))? )?(?P<Cmd>[^ ]+)(?: (?P<Params>[^\:][^ ]*(?: [^\:][^ ]*)*))?(?: \:(?P<Msg>.*))?$"
 ;						"^(?:\:(?P<Nick>[^\!\@ ]+)(?:\!(?P<User>[^\@ ]+))?(?:\@(?P<Host>[^ ]+))? )?(?P<Cmd>[^ ]+)(?: (?P<Params>[^\:][^ ]*(?: [^\:][^ ]*)*))?(?: \:(?P<Msg>.*))?$" ; This is the old regex without tags
 		if (!Data)
 			return
@@ -68,7 +68,7 @@
 		if (!this["_on" pCmd](pTags,pNick,pUser,pHost,pCmd,Params,pMsg,Data))
 			this["on" pCmd](pTags,pNick,pUser,pHost,pCmd,Params,pMsg,Data)
 		}
-		_onNICK(Tags,Nick,User,Host,Cmd,Params,Msg,Data) {
+	_onNICK(Tags,Nick,User,Host,Cmd,Params,Msg,Data) {
 			if (Nick == this.Nick)
 				this.Nick := Msg
 			for Channel, NickList in this.Channels
